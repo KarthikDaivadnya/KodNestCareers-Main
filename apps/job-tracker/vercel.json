@@ -1,0 +1,7 @@
+{
+  "buildCommand": null,
+  "outputDirectory": "design-system",
+  "installCommand": "echo skip",
+  "cleanUrls": true,
+  "trailingSlash": false
+}
