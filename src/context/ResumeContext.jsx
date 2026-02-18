@@ -1,36 +1,43 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState } from 'react'
 
-/* ── Default empty resume ────────────────────────────────────── */
 export const EMPTY_RESUME = {
-  name: '',
-  email: '',
-  phone: '',
-  location: '',
+  name: '', email: '', phone: '', location: '',
   summary: '',
   education: [],
   experience: [],
   projects: [],
-  skills: '',
-  github: '',
-  linkedin: '',
+  skillGroups: { technical: [], soft: [], tools: [] },
+  github: '', linkedin: '',
 }
 
-/* ── Context ─────────────────────────────────────────────────── */
 const ResumeContext = createContext(null)
-
 const STORAGE_KEY = 'resumeBuilderData'
 
-function load() {
+function migrateAndLoad() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? { ...EMPTY_RESUME, ...JSON.parse(raw) } : EMPTY_RESUME
+    if (!raw) return EMPTY_RESUME
+    const parsed = JSON.parse(raw)
+    /* migrate old comma-separated skills → skillGroups.technical */
+    if (parsed.skills && !parsed.skillGroups) {
+      const arr = parsed.skills.split(',').map(s => s.trim()).filter(Boolean)
+      parsed.skillGroups = { technical: arr, soft: [], tools: [] }
+      delete parsed.skills
+    }
+    /* ensure all projects have techStack + liveUrl */
+    if (Array.isArray(parsed.projects)) {
+      parsed.projects = parsed.projects.map(p => ({
+        techStack: [], liveUrl: '', ...p,
+      }))
+    }
+    return { ...EMPTY_RESUME, ...parsed }
   } catch {
     return EMPTY_RESUME
   }
 }
 
 export function ResumeProvider({ children }) {
-  const [resume, setResumeState] = useState(load)
+  const [resume, setResumeState] = useState(migrateAndLoad)
 
   const setResume = (updater) => {
     setResumeState(prev => {
@@ -40,9 +47,7 @@ export function ResumeProvider({ children }) {
     })
   }
 
-  const setField = (field, value) =>
-    setResume(prev => ({ ...prev, [field]: value }))
-
+  const setField = (field, value) => setResume(prev => ({ ...prev, [field]: value }))
   const resetResume = () => setResume(EMPTY_RESUME)
 
   return (
@@ -54,6 +59,6 @@ export function ResumeProvider({ children }) {
 
 export function useResume() {
   const ctx = useContext(ResumeContext)
-  if (!ctx) throw new Error('useResume must be used inside <ResumeProvider>')
+  if (!ctx) throw new Error('useResume must be inside <ResumeProvider>')
   return ctx
 }

@@ -1,5 +1,7 @@
 import { TEMPLATE_STYLES } from '../lib/templates'
 
+const SKILL_GROUP_LABELS = { technical: 'Technical', soft: 'Soft Skills', tools: 'Tools' }
+
 export default function ResumeDocument({ resume, template = 'classic', className = '' }) {
   const r = resume || {}
   const s = TEMPLATE_STYLES[template] ?? TEMPLATE_STYLES.classic
@@ -8,10 +10,16 @@ export default function ResumeDocument({ resume, template = 'classic', className
   const hasEdu      = Array.isArray(r.education)  && r.education.some(e => e.institution?.trim())
   const hasExp      = Array.isArray(r.experience) && r.experience.some(e => e.company?.trim() || e.role?.trim())
   const hasProjects = Array.isArray(r.projects)   && r.projects.some(p => p.name?.trim())
-  const hasSkills   = !!(r.skills?.trim())
   const hasGitHub   = !!(r.github?.trim())
   const hasLinkedIn = !!(r.linkedin?.trim())
   const hasLinks    = hasGitHub || hasLinkedIn
+
+  /* skills: new skillGroups or legacy string */
+  const sg = r.skillGroups
+  const hasSkillGroups = sg && Object.values(sg).flat().length > 0
+  const hasLegacySkills = !hasSkillGroups && !!(r.skills?.trim())
+  const hasSkills = hasSkillGroups || hasLegacySkills
+
   const contactParts = [r.email, r.phone, r.location].filter(v => v?.trim())
   const isEmpty = !r.name?.trim() && !contactParts.length && !hasSummary && !hasExp && !hasEdu
 
@@ -30,7 +38,7 @@ export default function ResumeDocument({ resume, template = 'classic', className
   return (
     <div className={`bg-white text-gray-900 p-8 ${className}`} style={{ fontFamily: s.fontFamily }}>
 
-      {/* ── Header ── */}
+      {/* Header */}
       <div className={`resume-entry ${s.headerAlign} ${s.headerBorder}`}>
         <h1 className={`${s.nameClass} break-words`}>
           {r.name?.trim() || <span className="text-gray-300 italic text-base">Your Name</span>}
@@ -46,7 +54,7 @@ export default function ResumeDocument({ resume, template = 'classic', className
         )}
       </div>
 
-      {/* ── Summary ── */}
+      {/* Summary */}
       {hasSummary && (
         <div className={`resume-section ${s.sectionWrap}`}>
           <div className={s.sectionLabel}>Summary</div>
@@ -54,7 +62,7 @@ export default function ResumeDocument({ resume, template = 'classic', className
         </div>
       )}
 
-      {/* ── Experience ── */}
+      {/* Experience */}
       {hasExp && (
         <div className={`resume-section ${s.sectionWrap}`}>
           <div className={s.sectionLabel}>Experience</div>
@@ -81,7 +89,7 @@ export default function ResumeDocument({ resume, template = 'classic', className
         </div>
       )}
 
-      {/* ── Education ── */}
+      {/* Education */}
       {hasEdu && (
         <div className={`resume-section ${s.sectionWrap}`}>
           <div className={s.sectionLabel}>Education</div>
@@ -95,7 +103,9 @@ export default function ResumeDocument({ resume, template = 'classic', className
                   </span>
                 </div>
                 {(edu.degree || edu.field) && (
-                  <p className={`${s.entryCompany} break-words`}>{[edu.degree, edu.field].filter(Boolean).join(', ')}</p>
+                  <p className={`${s.entryCompany} break-words`}>
+                    {[edu.degree, edu.field].filter(Boolean).join(', ')}
+                  </p>
                 )}
               </div>
             ))}
@@ -103,21 +113,35 @@ export default function ResumeDocument({ resume, template = 'classic', className
         </div>
       )}
 
-      {/* ── Projects ── */}
+      {/* Projects — card layout with tech pills + links */}
       {hasProjects && (
         <div className={`resume-section ${s.sectionWrap}`}>
           <div className={s.sectionLabel}>Projects</div>
           <div className="flex flex-col gap-2.5">
             {r.projects.filter(p => p.name?.trim()).map(proj => (
               <div key={proj.id} className="resume-entry">
-                <div className="flex items-baseline justify-between gap-2">
-                  <span className={`${s.entryRole} break-words`}>{proj.name}</span>
-                  {proj.link?.trim() && (
-                    <span className={`${s.entryDate} break-all max-w-[200px] text-right`}>{proj.link}</span>
-                  )}
+                <div className="flex items-start justify-between gap-2">
+                  <span className={`${s.entryRole} break-words flex-1`}>{proj.name}</span>
+                  <div className="flex items-center gap-2 shrink-0 mt-0.5">
+                    {proj.liveUrl?.trim() && (
+                      <span className={`${s.entryDate} text-gray-500`}>↗ live</span>
+                    )}
+                    {proj.link?.trim() && (
+                      <span className={`${s.entryDate}`}>GH</span>
+                    )}
+                  </div>
                 </div>
                 {proj.description?.trim() && (
                   <p className={`${s.bulletText} mt-0.5 break-words`}>{proj.description}</p>
+                )}
+                {proj.techStack?.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-1.5">
+                    {proj.techStack.map(t => (
+                      <span key={t} className="text-[8.5px] border border-gray-200 text-gray-500 px-1.5 py-0.5 rounded-full leading-none">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
                 )}
               </div>
             ))}
@@ -125,11 +149,32 @@ export default function ResumeDocument({ resume, template = 'classic', className
         </div>
       )}
 
-      {/* ── Skills ── */}
+      {/* Skills — grouped pill badges */}
       {hasSkills && (
         <div className={`resume-section ${s.sectionWrap}`}>
           <div className={s.sectionLabel}>Skills</div>
-          <p className={`${s.skillsText} break-words`}>{r.skills}</p>
+          {hasSkillGroups ? (
+            <div className="flex flex-col gap-1.5">
+              {Object.entries(sg).map(([key, arr]) => {
+                if (!arr?.length) return null
+                return (
+                  <div key={key} className="flex flex-wrap items-center gap-1">
+                    <span className="text-[8.5px] font-bold text-gray-400 uppercase tracking-wide mr-1 shrink-0">
+                      {SKILL_GROUP_LABELS[key] || key}:
+                    </span>
+                    {arr.map(skill => (
+                      <span key={skill}
+                        className="text-[8.5px] border border-gray-200 text-gray-600 px-1.5 py-0.5 rounded-full leading-none">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            <p className={`${s.skillsText} break-words`}>{r.skills}</p>
+          )}
         </div>
       )}
 

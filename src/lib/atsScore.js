@@ -10,9 +10,15 @@ function wordCount(str) {
   return str.trim().split(/\s+/).length
 }
 
-function skillCount(skillsStr) {
-  if (!skillsStr || !skillsStr.trim()) return 0
-  return skillsStr.split(',').map(s => s.trim()).filter(Boolean).length
+function skillCount(r) {
+  /* new schema: skillGroups */
+  if (r.skillGroups) {
+    return Object.values(r.skillGroups).flat().length
+  }
+  /* legacy: skills string */
+  const str = r.skills ?? ''
+  if (!str.trim()) return 0
+  return str.split(',').map(s => s.trim()).filter(Boolean).length
 }
 
 function hasBulletNumbers(experience, projects) {
@@ -60,7 +66,7 @@ export function computeATS(resume) {
   }
 
   /* +10: skills ≥ 8 */
-  const sCount = skillCount(r.skills)
+  const sCount = skillCount(r)
   if (sCount >= 8) {
     score += 10
     breakdown.push({ label: `${sCount} skills listed`, points: 10, passed: true })
