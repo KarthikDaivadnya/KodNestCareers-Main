@@ -1,8 +1,9 @@
 import { useResume } from '../context/ResumeContext'
 import { SAMPLE_RESUME } from '../lib/sampleData'
+import { computeATS, scoreColor } from '../lib/atsScore'
 import ResumeDocument from '../components/ResumeDocument'
 import { Link } from 'react-router-dom'
-import { Plus, Trash2, Eye, RefreshCw } from 'lucide-react'
+import { Plus, Trash2, Eye, RefreshCw, AlertCircle } from 'lucide-react'
 
 /* ── Helpers ─────────────────────────────────────────────────── */
 const uid = () => `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
@@ -16,15 +17,15 @@ function Label({ children }) {
   )
 }
 
-function Input({ value, onChange, placeholder, type = 'text', className = '' }) {
+function Input({ value, onChange, placeholder, type = 'text' }) {
   return (
     <input
       type={type}
       value={value}
       onChange={e => onChange(e.target.value)}
       placeholder={placeholder}
-      className={`w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-300
-        focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-400 bg-white transition-all ${className}`}
+      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-300
+        focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-400 bg-white transition-all"
     />
   )
 }
@@ -42,7 +43,6 @@ function Textarea({ value, onChange, placeholder, rows = 4 }) {
   )
 }
 
-/* ── Section wrapper ─────────────────────────────────────────── */
 function FormSection({ title, children }) {
   return (
     <div className="border-b border-gray-100 pb-7 mb-7 last:border-0 last:pb-0 last:mb-0">
@@ -52,7 +52,6 @@ function FormSection({ title, children }) {
   )
 }
 
-/* ── Add button ──────────────────────────────────────────────── */
 function AddButton({ onClick, label }) {
   return (
     <button
@@ -67,27 +66,88 @@ function AddButton({ onClick, label }) {
   )
 }
 
-/* ── Remove button ───────────────────────────────────────────── */
-function RemoveBtn({ onClick }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="flex items-center justify-center w-7 h-7 rounded-lg text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors shrink-0"
-    >
-      <Trash2 className="w-3.5 h-3.5" />
-    </button>
-  )
-}
-
-/* ── Entry card wrapper ──────────────────────────────────────── */
 function EntryCard({ children, onRemove }) {
   return (
     <div className="relative border border-gray-100 rounded-xl bg-gray-50/50 p-4 mb-3">
-      <div className="absolute top-3 right-3">
-        <RemoveBtn onClick={onRemove} />
-      </div>
+      <button
+        type="button"
+        onClick={onRemove}
+        className="absolute top-3 right-3 w-7 h-7 rounded-lg text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors flex items-center justify-center"
+      >
+        <Trash2 className="w-3.5 h-3.5" />
+      </button>
       <div className="pr-8">{children}</div>
+    </div>
+  )
+}
+
+/* ── ATS Score Panel ─────────────────────────────────────────── */
+function ATSPanel({ resume }) {
+  const { score, suggestions } = computeATS(resume)
+  const color = scoreColor(score)
+
+  const barColor =
+    color === 'green' ? 'bg-green-400' :
+    color === 'amber' ? 'bg-amber-400' :
+    'bg-red-400'
+
+  const scoreText =
+    color === 'green' ? 'text-green-600' :
+    color === 'amber' ? 'text-amber-600' :
+    'text-red-500'
+
+  const labelText =
+    score >= 75 ? 'Strong' :
+    score >= 45 ? 'Needs Work' :
+    'Weak'
+
+  return (
+    <div className="shrink-0 bg-white border-b border-gray-200 px-5 py-4">
+
+      {/* Score row */}
+      <div className="flex items-center justify-between mb-2">
+        <div>
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">
+            ATS Readiness Score
+          </p>
+          <div className="flex items-baseline gap-2">
+            <span className={`text-3xl font-bold leading-none ${scoreText}`}>{score}</span>
+            <span className="text-xs text-gray-400 font-medium">/ 100</span>
+            <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${
+              color === 'green' ? 'bg-green-100 text-green-700' :
+              color === 'amber' ? 'bg-amber-100 text-amber-700' :
+              'bg-red-100 text-red-600'
+            }`}>
+              {labelText}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Progress bar */}
+      <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-3">
+        <div
+          className={`h-full rounded-full transition-all duration-500 ${barColor}`}
+          style={{ width: `${score}%` }}
+        />
+      </div>
+
+      {/* Suggestions */}
+      {suggestions.length > 0 && (
+        <div className="flex flex-col gap-1.5">
+          {suggestions.map((s, i) => (
+            <div key={i} className="flex items-start gap-1.5 text-xs text-gray-500">
+              <AlertCircle className="w-3 h-3 text-amber-400 shrink-0 mt-0.5" />
+              <span className="leading-snug">{s}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {suggestions.length === 0 && (
+        <p className="text-xs text-green-600 font-medium">✓ All ATS checks passed.</p>
+      )}
+
     </div>
   )
 }
@@ -96,21 +156,21 @@ function EntryCard({ children, onRemove }) {
 export default function Builder() {
   const { resume, setField, setResume, resetResume } = useResume()
 
-  /* ── Personal Info ── */
+  /* helpers */
+  const uid_f = uid
+
+  /* Personal Info */
   const setPersonal = (field) => (val) => setField(field, val)
 
-  /* ── Summary ── */
-  const setSummary = (val) => setField('summary', val)
-
-  /* ── Education ── */
+  /* Education */
   const updateEdu = (id, field, val) =>
     setField('education', resume.education.map(e => e.id === id ? { ...e, [field]: val } : e))
   const addEdu = () =>
-    setField('education', [...(resume.education ?? []), { id: uid(), institution: '', degree: '', field: '', from: '', to: '' }])
+    setField('education', [...(resume.education ?? []), { id: uid_f(), institution: '', degree: '', field: '', from: '', to: '' }])
   const removeEdu = (id) =>
     setField('education', resume.education.filter(e => e.id !== id))
 
-  /* ── Experience ── */
+  /* Experience */
   const updateExp = (id, field, val) =>
     setField('experience', resume.experience.map(e => e.id === id ? { ...e, [field]: val } : e))
   const updateBullet = (expId, bIdx, val) =>
@@ -126,19 +186,18 @@ export default function Builder() {
       e.id === expId ? { ...e, bullets: e.bullets.filter((_, i) => i !== bIdx) } : e
     ))
   const addExp = () =>
-    setField('experience', [...(resume.experience ?? []), { id: uid(), company: '', role: '', from: '', to: '', bullets: [''] }])
+    setField('experience', [...(resume.experience ?? []), { id: uid_f(), company: '', role: '', from: '', to: '', bullets: [''] }])
   const removeExp = (id) =>
     setField('experience', resume.experience.filter(e => e.id !== id))
 
-  /* ── Projects ── */
+  /* Projects */
   const updateProj = (id, field, val) =>
     setField('projects', resume.projects.map(p => p.id === id ? { ...p, [field]: val } : p))
   const addProj = () =>
-    setField('projects', [...(resume.projects ?? []), { id: uid(), name: '', description: '', link: '' }])
+    setField('projects', [...(resume.projects ?? []), { id: uid_f(), name: '', description: '', link: '' }])
   const removeProj = (id) =>
     setField('projects', resume.projects.filter(p => p.id !== id))
 
-  /* ── Load sample ── */
   const loadSample = () => setResume(SAMPLE_RESUME)
 
   return (
@@ -153,14 +212,14 @@ export default function Builder() {
           <div className="flex items-center gap-2">
             <button
               onClick={resetResume}
-              className="flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-gray-700 transition-colors px-2 py-1.5 rounded-lg hover:bg-gray-50"
+              className="flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-gray-700 px-2 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <RefreshCw className="w-3 h-3" />
               Clear
             </button>
             <button
               onClick={loadSample}
-              className="flex items-center gap-1.5 text-xs font-semibold text-gray-700 border border-gray-200 hover:bg-gray-50 px-3 py-1.5 rounded-lg transition-colors"
+              className="text-xs font-semibold text-gray-700 border border-gray-200 hover:bg-gray-50 px-3 py-1.5 rounded-lg transition-colors"
             >
               Load Sample Data
             </button>
@@ -177,9 +236,9 @@ export default function Builder() {
         {/* Form body */}
         <div className="px-7 py-7">
 
-          {/* ── Personal Info ── */}
+          {/* Personal Info */}
           <FormSection title="Personal Info">
-            <div className="grid grid-cols-2 gap-3 mb-3">
+            <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label>Full Name</Label>
                 <Input value={resume.name} onChange={setPersonal('name')} placeholder="Jane Doe" />
@@ -199,21 +258,26 @@ export default function Builder() {
             </div>
           </FormSection>
 
-          {/* ── Summary ── */}
+          {/* Summary */}
           <FormSection title="Summary">
             <Textarea
               value={resume.summary}
-              onChange={setSummary}
-              placeholder="Brief professional summary — 2 to 4 sentences about your background, strengths, and what you bring to the role."
+              onChange={v => setField('summary', v)}
+              placeholder="Brief professional summary — 2 to 4 sentences. Aim for 40–120 words for ATS score boost."
               rows={4}
             />
+            <p className="text-xs text-gray-400 mt-1.5">
+              {resume.summary?.trim()
+                ? `${resume.summary.trim().split(/\s+/).length} words`
+                : '0 words — target 40–120'}
+            </p>
           </FormSection>
 
-          {/* ── Education ── */}
+          {/* Education */}
           <FormSection title="Education">
             {(resume.education ?? []).map((edu) => (
               <EntryCard key={edu.id} onRemove={() => removeEdu(edu.id)}>
-                <div className="grid grid-cols-2 gap-2 mb-2">
+                <div className="grid grid-cols-2 gap-2">
                   <div className="col-span-2">
                     <Label>Institution</Label>
                     <Input value={edu.institution} onChange={v => updateEdu(edu.id, 'institution', v)} placeholder="PES University" />
@@ -240,7 +304,7 @@ export default function Builder() {
             <AddButton onClick={addEdu} label="Add Education" />
           </FormSection>
 
-          {/* ── Experience ── */}
+          {/* Experience */}
           <FormSection title="Experience">
             {(resume.experience ?? []).map((exp) => (
               <EntryCard key={exp.id} onRemove={() => removeExp(exp.id)}>
@@ -262,8 +326,6 @@ export default function Builder() {
                     <Input value={exp.to} onChange={v => updateExp(exp.id, 'to', v)} placeholder="Present" />
                   </div>
                 </div>
-
-                {/* Bullets */}
                 <Label>Bullet Points</Label>
                 <div className="flex flex-col gap-1.5 mt-1">
                   {(exp.bullets ?? []).map((b, bIdx) => (
@@ -273,24 +335,18 @@ export default function Builder() {
                         type="text"
                         value={b}
                         onChange={e => updateBullet(exp.id, bIdx, e.target.value)}
-                        placeholder="Achieved X by doing Y, resulting in Z."
+                        placeholder="Achieved X by doing Y, resulting in Z (use numbers for ATS)."
                         className="flex-1 border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-gray-900 placeholder-gray-300
                           focus:outline-none focus:ring-1 focus:ring-gray-200 bg-white"
                       />
-                      <button
-                        type="button"
-                        onClick={() => removeBullet(exp.id, bIdx)}
-                        className="text-gray-300 hover:text-red-400 transition-colors mt-1.5 shrink-0"
-                      >
+                      <button type="button" onClick={() => removeBullet(exp.id, bIdx)}
+                        className="text-gray-300 hover:text-red-400 transition-colors mt-1.5 shrink-0">
                         <Trash2 className="w-3 h-3" />
                       </button>
                     </div>
                   ))}
-                  <button
-                    type="button"
-                    onClick={() => addBullet(exp.id)}
-                    className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-700 transition-colors mt-0.5 ml-4"
-                  >
+                  <button type="button" onClick={() => addBullet(exp.id)}
+                    className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-700 transition-colors mt-0.5 ml-4">
                     <Plus className="w-3 h-3" />
                     Add bullet
                   </button>
@@ -300,7 +356,7 @@ export default function Builder() {
             <AddButton onClick={addExp} label="Add Experience" />
           </FormSection>
 
-          {/* ── Projects ── */}
+          {/* Projects */}
           <FormSection title="Projects">
             {(resume.projects ?? []).map((proj) => (
               <EntryCard key={proj.id} onRemove={() => removeProj(proj.id)}>
@@ -314,7 +370,7 @@ export default function Builder() {
                     <Textarea
                       value={proj.description}
                       onChange={v => updateProj(proj.id, 'description', v)}
-                      placeholder="What does it do, what tech was used, what was the impact?"
+                      placeholder="What does it do, what tech was used, what was the impact? Use numbers."
                       rows={2}
                     />
                   </div>
@@ -328,37 +384,32 @@ export default function Builder() {
             <AddButton onClick={addProj} label="Add Project" />
           </FormSection>
 
-          {/* ── Skills ── */}
+          {/* Skills */}
           <FormSection title="Skills">
-            <Label>Skills (comma-separated)</Label>
+            <Label>Skills (comma-separated, 8+ for ATS)</Label>
             <Textarea
               value={resume.skills}
               onChange={v => setField('skills', v)}
-              placeholder="React, TypeScript, Node.js, PostgreSQL, Docker, AWS, Git..."
+              placeholder="React, TypeScript, Node.js, PostgreSQL, Docker, AWS, Git, Python..."
               rows={2}
             />
+            <p className="text-xs text-gray-400 mt-1.5">
+              {resume.skills?.trim()
+                ? `${resume.skills.split(',').map(s => s.trim()).filter(Boolean).length} skills`
+                : '0 skills — target 8+'}
+            </p>
           </FormSection>
 
-          {/* ── Links ── */}
+          {/* Links */}
           <FormSection title="Links">
             <div className="flex flex-col gap-3">
               <div>
                 <Label>GitHub</Label>
-                <Input
-                  value={resume.github}
-                  onChange={v => setField('github', v)}
-                  placeholder="https://github.com/username"
-                  type="url"
-                />
+                <Input value={resume.github} onChange={v => setField('github', v)} placeholder="https://github.com/username" type="url" />
               </div>
               <div>
                 <Label>LinkedIn</Label>
-                <Input
-                  value={resume.linkedin}
-                  onChange={v => setField('linkedin', v)}
-                  placeholder="https://linkedin.com/in/username"
-                  type="url"
-                />
+                <Input value={resume.linkedin} onChange={v => setField('linkedin', v)} placeholder="https://linkedin.com/in/username" type="url" />
               </div>
             </div>
           </FormSection>
@@ -366,12 +417,15 @@ export default function Builder() {
         </div>
       </div>
 
-      {/* ── Right: Live Preview (45%) ── */}
-      <div className="w-[45%] overflow-y-auto bg-gray-100 flex flex-col">
+      {/* ── Right: ATS Score + Live Preview (45%) ── */}
+      <div className="w-[45%] flex flex-col overflow-hidden bg-gray-100">
 
-        {/* Preview header */}
-        <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-5 py-2.5 flex items-center justify-between shrink-0">
-          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Live Preview</span>
+        {/* ATS Score Panel */}
+        <ATSPanel resume={resume} />
+
+        {/* Live Preview header */}
+        <div className="bg-white border-b border-gray-200 px-5 py-2 flex items-center justify-between shrink-0">
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Live Preview</span>
           <Link
             to="/preview"
             className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-900 transition-colors font-medium"
@@ -381,11 +435,11 @@ export default function Builder() {
           </Link>
         </div>
 
-        {/* Scaled resume preview */}
-        <div className="flex-1 overflow-y-auto p-5">
+        {/* Scaled resume */}
+        <div className="flex-1 overflow-y-auto p-4">
           <div
-            className="bg-white shadow-lg ring-1 ring-gray-200 origin-top"
-            style={{ transform: 'scale(0.72)', transformOrigin: 'top center', marginBottom: '-28%' }}
+            className="bg-white shadow-lg ring-1 ring-gray-200"
+            style={{ transform: 'scale(0.7)', transformOrigin: 'top center', marginBottom: '-30%' }}
           >
             <ResumeDocument resume={resume} />
           </div>

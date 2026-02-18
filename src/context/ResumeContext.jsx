@@ -18,7 +18,7 @@ export const EMPTY_RESUME = {
 /* ── Context ─────────────────────────────────────────────────── */
 const ResumeContext = createContext(null)
 
-const STORAGE_KEY = 'rb_resume_data'
+const STORAGE_KEY = 'resumeBuilderData'
 
 function load() {
   try {
