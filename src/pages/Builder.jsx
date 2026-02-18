@@ -121,13 +121,12 @@ function TemplateTabs({ active, onChange }) {
 
 /* ── ATS + Improvement panel ── */
 function ScoringPanel({ resume }) {
-  const { score, suggestions, breakdown } = computeATS(resume)
+  const { score, suggestions } = computeATS(resume)
   const color = scoreColor(score)
   const barColor  = color === 'green' ? 'bg-green-400' : color === 'amber' ? 'bg-amber-400' : 'bg-red-400'
   const scoreText = color === 'green' ? 'text-green-600' : color === 'amber' ? 'text-amber-600' : 'text-red-500'
   const badgeCls  = color === 'green' ? 'bg-green-100 text-green-700' : color === 'amber' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-600'
-  const label     = score >= 75 ? 'Strong' : score >= 45 ? 'Needs Work' : 'Weak'
-  const improvements = breakdown.filter(b => !b.passed).slice(0, 3)
+  const label     = score >= 71 ? 'Strong' : score >= 41 ? 'Getting There' : 'Needs Work'
 
   return (
     <div className="shrink-0 bg-white border-b border-gray-200 px-5 py-4 space-y-3">
@@ -143,34 +142,24 @@ function ScoringPanel({ resume }) {
         </div>
       </div>
       {suggestions.length > 0 && (
-        <div className="flex flex-col gap-1.5">
-          {suggestions.map((s, i) => (
-            <div key={i} className="flex items-start gap-1.5 text-xs text-gray-500">
-              <AlertCircle className="w-3 h-3 text-amber-400 shrink-0 mt-0.5" />
-              <span className="leading-snug">{s}</span>
-            </div>
-          ))}
-        </div>
-      )}
-      {improvements.length > 0 && (
         <div>
           <div className="flex items-center gap-1.5 mb-1.5">
             <TrendingUp className="w-3 h-3 text-gray-400" />
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Top 3 Improvements</span>
+            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Top Improvements</span>
           </div>
           <div className="flex flex-col gap-1">
-            {improvements.map((item, i) => (
+            {suggestions.slice(0,3).map((s, i) => (
               <div key={i} className="flex items-center gap-2 text-xs text-gray-600">
-                <span className="w-4 h-4 rounded-full bg-gray-100 text-gray-400 text-[9px] font-bold flex items-center justify-center shrink-0">{i+1}</span>
-                <span className="leading-snug flex-1">{item.label}</span>
-                <span className="text-gray-300 text-[10px]">+{item.points}</span>
+                <AlertCircle className="w-3 h-3 text-amber-400 shrink-0" />
+                <span className="leading-snug flex-1">{s.text}</span>
+                <span className="text-gray-300 text-[10px]">+{s.points}</span>
               </div>
             ))}
           </div>
         </div>
       )}
-      {suggestions.length === 0 && improvements.length === 0 && (
-        <p className="text-xs text-green-600 font-medium">✓ All ATS checks passed.</p>
+      {suggestions.length === 0 && (
+        <p className="text-xs text-green-600 font-medium">✓ All ATS checks passed!</p>
       )}
     </div>
   )
