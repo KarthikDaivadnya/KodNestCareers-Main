@@ -1,5 +1,5 @@
 {
-  "buildCommand": null,
+  "buildCommand": "echo 'Static design system — no build step'",
   "installCommand": "echo skip",
   "outputDirectory": "design-system",
   "cleanUrls": true,
