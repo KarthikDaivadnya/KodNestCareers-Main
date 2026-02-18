@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import {
   CheckSquare, BookOpen, Calendar, HelpCircle,
   Tag, ArrowLeft, Copy, Download, Check,
-  ThumbsUp, AlertCircle, Zap,
+  ThumbsUp, AlertCircle, Zap, Building2, Layers,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/Card'
 import { useHistory } from '../hooks/useHistory'
@@ -108,6 +108,111 @@ function downloadTXT(analysis, liveScore, confidenceMap) {
   a.click()
   document.body.removeChild(a)
   URL.revokeObjectURL(url)
+}
+
+/* ── Company Intel Card ──────────────────────────────────── */
+const SIZE_COLORS = {
+  Enterprise: 'bg-blue-50 text-blue-700 border-blue-100',
+  'Mid-size': 'bg-amber-50 text-amber-700 border-amber-100',
+  Startup:    'bg-green-50 text-green-700 border-green-100',
+}
+
+function CompanyIntelCard({ intel }) {
+  const { companyName, industry, sizeCategory, sizeRange, hiringFocus, isKnown } = intel
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <CardTitle className="flex items-center gap-2">
+            <Building2 className="w-4 h-4 text-primary-500" />
+            Company Intel
+          </CardTitle>
+          <span className="text-xs text-gray-400 italic">
+            Demo Mode: Generated heuristically
+          </span>
+        </div>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        {/* Meta row */}
+        <div className="flex flex-wrap gap-3 items-center">
+          <div className="flex flex-col">
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Company</span>
+            <span className="text-sm font-semibold text-gray-900">{companyName}</span>
+          </div>
+          <div className="w-px h-8 bg-gray-100 hidden sm:block" />
+          <div className="flex flex-col">
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Industry</span>
+            <span className="text-sm text-gray-700">{industry}</span>
+          </div>
+          <div className="w-px h-8 bg-gray-100 hidden sm:block" />
+          <div className="flex flex-col">
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Company Size</span>
+            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border self-start ${SIZE_COLORS[sizeCategory]}`}>
+              {sizeCategory} · {sizeRange} employees
+            </span>
+          </div>
+          {!isKnown && (
+            <span className="ml-auto text-xs text-gray-400 italic">
+              Unknown company — defaulting to Startup
+            </span>
+          )}
+        </div>
+
+        {/* Hiring focus */}
+        <div className="border-t border-gray-100 pt-4">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Typical Hiring Focus</p>
+          <p className="text-sm text-gray-600 leading-relaxed">{hiringFocus}</p>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+/* ── Round Mapping Timeline Card ─────────────────────────── */
+function RoundMappingCard({ rounds }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Layers className="w-4 h-4 text-primary-500" />
+          Interview Round Map
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-0 pt-1">
+        {rounds.map((round, i) => (
+          <div key={i} className="flex gap-4">
+            {/* Timeline spine */}
+            <div className="flex flex-col items-center shrink-0">
+              <div className="w-7 h-7 rounded-full bg-primary-500 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                {i + 1}
+              </div>
+              {i < rounds.length - 1 && (
+                <div className="w-0.5 flex-1 bg-gray-100 my-1 min-h-[24px]" />
+              )}
+            </div>
+
+            {/* Content */}
+            <div className={`flex-1 pb-5 ${i === rounds.length - 1 ? '' : ''}`}>
+              <div className="flex items-baseline gap-2 flex-wrap mb-1">
+                <span className="text-xs font-semibold text-primary-600 uppercase tracking-wider">
+                  {round.label}
+                </span>
+                <span className="text-sm font-semibold text-gray-900">{round.name}</span>
+              </div>
+              {round.topics && (
+                <p className="text-xs text-gray-500 mb-1.5 leading-snug">
+                  <span className="font-medium text-gray-600">Topics: </span>{round.topics}
+                </p>
+              )}
+              <p className="text-xs text-amber-700 bg-amber-50 border border-amber-100 px-2.5 py-1.5 rounded-lg leading-snug">
+                <span className="font-semibold">Why this matters: </span>{round.why}
+              </p>
+            </div>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  )
 }
 
 /* ── Main Results Component ──────────────────────────────── */
@@ -249,6 +354,16 @@ export default function Results() {
       </div>
 
       <div className="flex flex-col gap-5">
+
+        {/* 0a. Company Intel card */}
+        {analysis.companyIntel && analysis.company && (
+          <CompanyIntelCard intel={analysis.companyIntel} />
+        )}
+
+        {/* 0b. Round Mapping timeline */}
+        {analysis.companyIntel && (
+          <RoundMappingCard rounds={analysis.companyIntel.rounds} />
+        )}
 
         {/* 1. Extracted Skills — with confidence toggles */}
         <Card>

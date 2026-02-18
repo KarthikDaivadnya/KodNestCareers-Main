@@ -3,6 +3,8 @@
    Pure JS, no external APIs, works fully offline.
    ============================================================ */
 
+import { buildCompanyIntel } from './companyIntel'
+
 // ── Category definitions with regex patterns ─────────────────
 export const CATEGORY_KEYWORDS = {
   'Core CS': [
@@ -319,6 +321,7 @@ export function analyzeJD({ company, role, jdText }) {
   const checklist       = generateChecklist(extractedSkills)
   const plan            = generatePlan(extractedSkills)
   const questions       = generateQuestions(extractedSkills)
+  const companyIntel    = buildCompanyIntel(company, extractedSkills)
 
   return {
     id:             crypto.randomUUID(),
@@ -331,5 +334,6 @@ export function analyzeJD({ company, role, jdText }) {
     checklist,
     plan,
     questions,
+    companyIntel,
   }
 }
