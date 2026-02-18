@@ -8,24 +8,23 @@
     "packages/*"
   ],
   "scripts": {
-    "build":                    "turbo run build",
-    "dev":                      "turbo run dev",
-    "lint":                     "turbo run lint",
-    "clean":                    "turbo run clean && rm -rf node_modules",
-
-    "build:job-tracker":        "npm run build --workspace=apps/job-tracker",
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "build:job-tracker": "npm run build --workspace=apps/job-tracker",
     "build:placement-platform": "npm run build --workspace=apps/placement-platform",
-    "build:resume-builder":     "npm run build --workspace=apps/resume-builder",
-
-    "dev:job-tracker":          "npm run dev --workspace=apps/job-tracker",
-    "dev:placement-platform":   "npm run dev --workspace=apps/placement-platform",
-    "dev:resume-builder":       "npm run dev --workspace=apps/resume-builder"
+    "build:resume-builder": "npm run build --workspace=apps/resume-builder",
+    "dev:job-tracker": "npm run dev --workspace=apps/job-tracker",
+    "dev:placement-platform": "npm run dev --workspace=apps/placement-platform",
+    "dev:resume-builder": "npm run dev --workspace=apps/resume-builder"
   },
   "devDependencies": {
-    "turbo": "^2.5.0"
+    "turbo": "^2.8.10"
   },
+  "packageManager": "npm@11.6.2",
   "engines": {
     "node": ">=18.17.0",
-    "npm":  ">=9.0.0"
+    "npm": ">=9.0.0"
   }
 }
