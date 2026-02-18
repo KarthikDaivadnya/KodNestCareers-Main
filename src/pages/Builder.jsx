@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useResume } from '../context/ResumeContext'
 import { SAMPLE_RESUME } from '../lib/sampleData'
 import { computeATS, scoreColor } from '../lib/atsScore'
-import { TEMPLATES, loadTemplate, saveTemplate, bulletVerb, bulletHasNumber } from '../lib/templates'
+import { TEMPLATES, loadTemplate, saveTemplate, loadColor, saveColor, COLORS, bulletVerb, bulletHasNumber } from '../lib/templates'
 import ResumeDocument from '../components/ResumeDocument'
 import { Link } from 'react-router-dom'
 import {
@@ -180,10 +180,12 @@ function ScoringPanel({ resume }) {
 export default function Builder() {
   const { resume, setField, setResume, resetResume } = useResume()
   const [template, setTemplate] = useState(loadTemplate)
+  const [colorId,  setColorId]  = useState(loadColor)
   const [openProjects, setOpenProjects] = useState(new Set())
   const [suggesting, setSuggesting]     = useState(false)
 
   const handleTemplate = id => { setTemplate(id); saveTemplate(id) }
+  const handleColor    = id => { setColorId(id);  saveColor(id)    }
 
   const toggleProject = id => setOpenProjects(prev => {
     const next = new Set(prev)
@@ -453,7 +455,7 @@ export default function Builder() {
         <div className="flex-1 overflow-y-auto p-4">
           <div className="bg-white shadow-lg ring-1 ring-gray-200"
             style={{ transform:'scale(0.7)', transformOrigin:'top center', marginBottom:'-30%' }}>
-            <ResumeDocument resume={resume} template={template} />
+            <ResumeDocument resume={resume} template={template} colorId={colorId} />
           </div>
         </div>
       </div>

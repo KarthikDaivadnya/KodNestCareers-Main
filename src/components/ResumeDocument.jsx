@@ -1,86 +1,322 @@
-import { TEMPLATE_STYLES } from '../lib/templates'
+import { getColorValue } from '../lib/templates'
 
-const SKILL_GROUP_LABELS = { technical: 'Technical', soft: 'Soft Skills', tools: 'Tools' }
+/* ── Shared helpers ── */
+const SKILL_LABELS = { technical: 'Technical', soft: 'Soft Skills', tools: 'Tools' }
 
-export default function ResumeDocument({ resume, template = 'classic', className = '' }) {
-  const r = resume || {}
-  const s = TEMPLATE_STYLES[template] ?? TEMPLATE_STYLES.classic
+function SkillPills({ skillGroups, textStyle }) {
+  if (!skillGroups) return null
+  return (
+    <div className="flex flex-col gap-1.5">
+      {Object.entries(skillGroups).map(([key, arr]) => {
+        if (!arr?.length) return null
+        return (
+          <div key={key}>
+            <span style={textStyle} className="text-[8px] font-bold uppercase tracking-wide mr-1">
+              {SKILL_LABELS[key] || key}:
+            </span>
+            <span className="text-[8px]">{arr.join(' · ')}</span>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
 
-  const hasSummary  = !!(r.summary?.trim())
-  const hasEdu      = Array.isArray(r.education)  && r.education.some(e => e.institution?.trim())
-  const hasExp      = Array.isArray(r.experience) && r.experience.some(e => e.company?.trim() || e.role?.trim())
-  const hasProjects = Array.isArray(r.projects)   && r.projects.some(p => p.name?.trim())
-  const hasGitHub   = !!(r.github?.trim())
-  const hasLinkedIn = !!(r.linkedin?.trim())
-  const hasLinks    = hasGitHub || hasLinkedIn
+function TechPills({ stack, accentColor }) {
+  if (!stack?.length) return null
+  return (
+    <div className="flex flex-wrap gap-1 mt-1">
+      {stack.map(t => (
+        <span key={t} style={{ borderColor: accentColor, color: accentColor }}
+          className="text-[7.5px] border px-1.5 py-0.5 rounded-full leading-none">{t}</span>
+      ))}
+    </div>
+  )
+}
 
-  /* skills: new skillGroups or legacy string */
-  const sg = r.skillGroups
-  const hasSkillGroups = sg && Object.values(sg).flat().length > 0
-  const hasLegacySkills = !hasSkillGroups && !!(r.skills?.trim())
-  const hasSkills = hasSkillGroups || hasLegacySkills
-
-  const contactParts = [r.email, r.phone, r.location].filter(v => v?.trim())
-  const isEmpty = !r.name?.trim() && !contactParts.length && !hasSummary && !hasExp && !hasEdu
-
-  if (isEmpty) {
-    return (
-      <div className={`bg-white p-10 flex flex-col items-center justify-center text-center min-h-[400px] ${className}`}>
-        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-          <span className="text-lg">📄</span>
-        </div>
-        <p className="text-sm font-medium text-gray-400">Your resume will appear here.</p>
-        <p className="text-xs text-gray-300 mt-1">Start filling in the form on the left.</p>
+/* ── EMPTY STATE ── */
+function EmptyState({ className }) {
+  return (
+    <div className={`bg-white p-10 flex flex-col items-center justify-center text-center min-h-[400px] ${className}`}>
+      <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+        <span className="text-lg">📄</span>
       </div>
-    )
-  }
+      <p className="text-sm font-medium text-gray-400">Your resume will appear here.</p>
+      <p className="text-xs text-gray-300 mt-1">Start filling in the form on the left.</p>
+    </div>
+  )
+}
+
+/* ── CLASSIC LAYOUT ──────────────────────────────────────── */
+function ClassicResume({ r, accent }) {
+  const hasSummary  = !!(r.summary?.trim())
+  const hasExp      = (r.experience ?? []).some(e => e.company?.trim() || e.role?.trim())
+  const hasEdu      = (r.education  ?? []).some(e => e.institution?.trim())
+  const hasProjects = (r.projects   ?? []).some(p => p.name?.trim())
+  const hasSkills   = Object.values(r.skillGroups ?? {}).flat().length > 0 || r.skills?.trim()
+  const contact     = [r.email, r.phone, r.location].filter(Boolean)
+  const links       = [r.github, r.linkedin].filter(Boolean)
+
+  const SLabel = ({ children }) => (
+    <div style={{ borderBottomColor: accent, color: accent }}
+      className="text-[8.5px] font-bold tracking-[0.2em] uppercase border-b pb-1 mb-2">{children}</div>
+  )
 
   return (
-    <div className={`bg-white text-gray-900 p-8 ${className}`} style={{ fontFamily: s.fontFamily }}>
-
-      {/* Header */}
-      <div className={`resume-entry ${s.headerAlign} ${s.headerBorder}`}>
-        <h1 className={`${s.nameClass} break-words`}>
-          {r.name?.trim() || <span className="text-gray-300 italic text-base">Your Name</span>}
+    <div className="bg-white p-8" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>
+      {/* Header — centered */}
+      <div className="text-center border-b border-gray-200 pb-4 mb-5 resume-entry">
+        <h1 style={{ color: accent }} className="text-[23px] font-bold tracking-tight break-words">
+          {r.name || <span className="text-gray-300 italic text-base">Your Name</span>}
         </h1>
-        {contactParts.length > 0 && (
-          <p className={`${s.contactClass} break-words`}>{contactParts.join('  ·  ')}</p>
-        )}
-        {hasLinks && (
-          <p className={`${s.linkClass} break-all`}>
-            {hasGitHub   && <span className="mr-3">{r.github}</span>}
-            {hasLinkedIn && <span>{r.linkedin}</span>}
-          </p>
-        )}
+        {contact.length > 0 && <p className="text-[9.5px] text-gray-500 mt-1">{contact.join('  ·  ')}</p>}
+        {links.length > 0   && <p className="text-[9px] text-gray-400 mt-0.5">{links.join('  ·  ')}</p>}
       </div>
 
-      {/* Summary */}
       {hasSummary && (
-        <div className={`resume-section ${s.sectionWrap}`}>
-          <div className={s.sectionLabel}>Summary</div>
-          <p className={`${s.bodyText} break-words`}>{r.summary}</p>
+        <div className="resume-section mb-4">
+          <SLabel>Summary</SLabel>
+          <p className="text-[10.5px] text-gray-700 leading-relaxed break-words">{r.summary}</p>
         </div>
       )}
 
-      {/* Experience */}
       {hasExp && (
-        <div className={`resume-section ${s.sectionWrap}`}>
-          <div className={s.sectionLabel}>Experience</div>
-          <div className="flex flex-col gap-3">
+        <div className="resume-section mb-4">
+          <SLabel>Experience</SLabel>
+          {r.experience.filter(e => e.company?.trim() || e.role?.trim()).map(exp => (
+            <div key={exp.id} className="resume-entry mb-3">
+              <div className="flex justify-between items-baseline">
+                <span className="text-[11px] font-bold text-gray-900">{exp.role}</span>
+                <span className="text-[9px] text-gray-400 whitespace-nowrap">{[exp.from, exp.to].filter(Boolean).join(' – ')}</span>
+              </div>
+              <p className="text-[10px] italic text-gray-500 mb-1">{exp.company}</p>
+              {exp.bullets?.filter(Boolean).length > 0 && (
+                <ul className="list-disc list-outside ml-4">
+                  {exp.bullets.filter(Boolean).map((b,i) => <li key={i} className="text-[10px] text-gray-700 leading-snug break-words">{b}</li>)}
+                </ul>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {hasEdu && (
+        <div className="resume-section mb-4">
+          <SLabel>Education</SLabel>
+          {r.education.filter(e => e.institution?.trim()).map(edu => (
+            <div key={edu.id} className="resume-entry mb-2">
+              <div className="flex justify-between items-baseline">
+                <span className="text-[11px] font-bold text-gray-900">{edu.institution}</span>
+                <span className="text-[9px] text-gray-400 whitespace-nowrap">{[edu.from, edu.to].filter(Boolean).join(' – ')}</span>
+              </div>
+              {(edu.degree || edu.field) && <p className="text-[10px] italic text-gray-500">{[edu.degree, edu.field].filter(Boolean).join(', ')}</p>}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {hasProjects && (
+        <div className="resume-section mb-4">
+          <SLabel>Projects</SLabel>
+          {r.projects.filter(p => p.name?.trim()).map(proj => (
+            <div key={proj.id} className="resume-entry mb-2.5">
+              <div className="flex justify-between items-start">
+                <span className="text-[11px] font-bold text-gray-900">{proj.name}</span>
+                <div className="flex gap-2 shrink-0 text-[9px] text-gray-400 mt-0.5">
+                  {proj.liveUrl?.trim() && <span>↗ live</span>}
+                  {proj.link?.trim()    && <span>GH</span>}
+                </div>
+              </div>
+              {proj.description?.trim() && <p className="text-[10px] text-gray-700 break-words">{proj.description}</p>}
+              <TechPills stack={proj.techStack} accentColor={accent} />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {hasSkills && (
+        <div className="resume-section mb-4">
+          <SLabel>Skills</SLabel>
+          {r.skillGroups && Object.values(r.skillGroups).flat().length > 0
+            ? <SkillPills skillGroups={r.skillGroups} textStyle={{ color: accent }} />
+            : <p className="text-[10px] text-gray-700">{r.skills}</p>
+          }
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ── MODERN LAYOUT — 2-column sidebar ──────────────────────── */
+function ModernResume({ r, accent }) {
+  const hasExp      = (r.experience ?? []).some(e => e.company?.trim() || e.role?.trim())
+  const hasEdu      = (r.education  ?? []).some(e => e.institution?.trim())
+  const hasProjects = (r.projects   ?? []).some(p => p.name?.trim())
+  const hasSummary  = !!(r.summary?.trim())
+  const contact     = [r.email, r.phone, r.location].filter(Boolean)
+  const links       = [r.github, r.linkedin].filter(Boolean)
+
+  const SLabel = ({ children }) => (
+    <div style={{ color: accent, borderBottomColor: accent }}
+      className="text-[9px] font-bold tracking-[0.18em] uppercase border-b pb-1 mb-2">{children}</div>
+  )
+  const SideLabel = ({ children }) => (
+    <div className="text-[8px] font-bold tracking-[0.15em] uppercase text-white/70 mb-1.5 mt-3 first:mt-0">{children}</div>
+  )
+
+  return (
+    <div className="bg-white flex" style={{ fontFamily: "'Inter', system-ui, sans-serif", minHeight: '297mm' }}>
+
+      {/* Sidebar */}
+      <div style={{ backgroundColor: accent, width: '33%' }} className="p-6 flex flex-col shrink-0">
+        <h1 className="text-[18px] font-bold text-white leading-tight break-words">{r.name || 'Your Name'}</h1>
+
+        {contact.length > 0 && (
+          <>
+            <SideLabel>Contact</SideLabel>
+            {contact.map((c,i) => <p key={i} className="text-[8.5px] text-white/90 leading-snug break-all">{c}</p>)}
+          </>
+        )}
+
+        {links.length > 0 && (
+          <>
+            <SideLabel>Links</SideLabel>
+            {links.map((l,i) => <p key={i} className="text-[8px] text-white/80 break-all leading-snug">{l}</p>)}
+          </>
+        )}
+
+        {r.skillGroups && Object.values(r.skillGroups).flat().length > 0 && (
+          <>
+            <SideLabel>Skills</SideLabel>
+            {Object.entries(r.skillGroups).map(([key, arr]) => {
+              if (!arr?.length) return null
+              return (
+                <div key={key} className="mb-2">
+                  <p className="text-[7.5px] text-white/60 uppercase tracking-wide mb-1">{SKILL_LABELS[key]}</p>
+                  <div className="flex flex-wrap gap-1">
+                    {arr.map(s => (
+                      <span key={s} className="text-[7.5px] bg-white/20 text-white px-1.5 py-0.5 rounded-full">{s}</span>
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </>
+        )}
+      </div>
+
+      {/* Main content */}
+      <div className="flex-1 p-7">
+        {hasSummary && (
+          <div className="resume-section mb-5">
+            <SLabel>Summary</SLabel>
+            <p className="text-[10.5px] text-gray-600 leading-relaxed break-words">{r.summary}</p>
+          </div>
+        )}
+
+        {hasExp && (
+          <div className="resume-section mb-5">
+            <SLabel>Experience</SLabel>
+            {r.experience.filter(e => e.company?.trim() || e.role?.trim()).map(exp => (
+              <div key={exp.id} className="resume-entry mb-3">
+                <div className="flex justify-between items-baseline">
+                  <span className="text-[11px] font-semibold text-gray-900">{exp.role}</span>
+                  <span className="text-[9px] text-gray-400 whitespace-nowrap">{[exp.from, exp.to].filter(Boolean).join(' – ')}</span>
+                </div>
+                <p className="text-[10px] text-gray-500 mb-1">{exp.company}</p>
+                {exp.bullets?.filter(Boolean).length > 0 && (
+                  <ul className="list-disc list-outside ml-4">
+                    {exp.bullets.filter(Boolean).map((b,i) => <li key={i} className="text-[10px] text-gray-600 leading-snug break-words">{b}</li>)}
+                  </ul>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {hasEdu && (
+          <div className="resume-section mb-5">
+            <SLabel>Education</SLabel>
+            {r.education.filter(e => e.institution?.trim()).map(edu => (
+              <div key={edu.id} className="resume-entry mb-2">
+                <div className="flex justify-between items-baseline">
+                  <span className="text-[11px] font-semibold text-gray-900">{edu.institution}</span>
+                  <span className="text-[9px] text-gray-400 whitespace-nowrap">{[edu.from, edu.to].filter(Boolean).join(' – ')}</span>
+                </div>
+                {(edu.degree || edu.field) && <p className="text-[10px] text-gray-500">{[edu.degree, edu.field].filter(Boolean).join(', ')}</p>}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {hasProjects && (
+          <div className="resume-section mb-5">
+            <SLabel>Projects</SLabel>
+            {r.projects.filter(p => p.name?.trim()).map(proj => (
+              <div key={proj.id} className="resume-entry mb-3">
+                <div className="flex justify-between items-start">
+                  <span style={{ color: accent }} className="text-[11px] font-semibold">{proj.name}</span>
+                  <div className="flex gap-2 shrink-0 text-[9px] text-gray-400">
+                    {proj.liveUrl?.trim() && <span>↗</span>}
+                    {proj.link?.trim()    && <span>GH</span>}
+                  </div>
+                </div>
+                {proj.description?.trim() && <p className="text-[10px] text-gray-600 break-words">{proj.description}</p>}
+                <TechPills stack={proj.techStack} accentColor={accent} />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/* ── MINIMAL LAYOUT ──────────────────────────────────────── */
+function MinimalResume({ r, accent }) {
+  const hasSummary  = !!(r.summary?.trim())
+  const hasExp      = (r.experience ?? []).some(e => e.company?.trim() || e.role?.trim())
+  const hasEdu      = (r.education  ?? []).some(e => e.institution?.trim())
+  const hasProjects = (r.projects   ?? []).some(p => p.name?.trim())
+  const hasSkills   = Object.values(r.skillGroups ?? {}).flat().length > 0 || r.skills?.trim()
+  const contact     = [r.email, r.phone, r.location].filter(Boolean)
+  const links       = [r.github, r.linkedin].filter(Boolean)
+
+  const SLabel = ({ children }) => (
+    <p style={{ color: accent }}
+      className="text-[8px] font-bold tracking-[0.25em] uppercase mb-3">{children}</p>
+  )
+
+  return (
+    <div className="bg-white px-10 py-9" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
+      {/* Header */}
+      <div className="resume-entry mb-8">
+        <h1 style={{ color: accent }} className="text-[20px] font-semibold tracking-tight break-words">{r.name || 'Your Name'}</h1>
+        {contact.length > 0 && <p className="text-[9px] text-gray-400 mt-1">{contact.join('  ·  ')}</p>}
+        {links.length > 0   && <p className="text-[8.5px] text-gray-400 mt-0.5">{links.join('  ·  ')}</p>}
+      </div>
+
+      {hasSummary && (
+        <div className="resume-section mb-7">
+          <SLabel>Summary</SLabel>
+          <p className="text-[10.5px] text-gray-600 leading-[1.7] break-words">{r.summary}</p>
+        </div>
+      )}
+
+      {hasExp && (
+        <div className="resume-section mb-7">
+          <SLabel>Experience</SLabel>
+          <div className="flex flex-col gap-4">
             {r.experience.filter(e => e.company?.trim() || e.role?.trim()).map(exp => (
               <div key={exp.id} className="resume-entry">
-                <div className="flex items-baseline justify-between gap-2">
-                  <span className={`${s.entryRole} break-words`}>{exp.role}</span>
-                  <span className={`${s.entryDate} shrink-0 whitespace-nowrap`}>
-                    {[exp.from, exp.to].filter(Boolean).join(' – ')}
-                  </span>
+                <div className="flex justify-between items-baseline">
+                  <span className="text-[10.5px] font-semibold text-gray-900">{exp.role}</span>
+                  <span className="text-[8.5px] text-gray-400 whitespace-nowrap">{[exp.from, exp.to].filter(Boolean).join(' – ')}</span>
                 </div>
-                <p className={`${s.entryCompany} break-words`}>{exp.company}</p>
+                <p className="text-[9.5px] text-gray-400 mb-1">{exp.company}</p>
                 {exp.bullets?.filter(Boolean).length > 0 && (
-                  <ul className="list-disc list-outside ml-4 flex flex-col gap-0.5 mt-1">
-                    {exp.bullets.filter(Boolean).map((b, i) => (
-                      <li key={i} className={`${s.bulletText} break-words`}>{b}</li>
-                    ))}
+                  <ul className="list-disc list-outside ml-4 flex flex-col gap-0.5">
+                    {exp.bullets.filter(Boolean).map((b,i) => <li key={i} className="text-[9.5px] text-gray-600 leading-snug break-words">{b}</li>)}
                   </ul>
                 )}
               </div>
@@ -89,95 +325,71 @@ export default function ResumeDocument({ resume, template = 'classic', className
         </div>
       )}
 
-      {/* Education */}
       {hasEdu && (
-        <div className={`resume-section ${s.sectionWrap}`}>
-          <div className={s.sectionLabel}>Education</div>
-          <div className="flex flex-col gap-2">
-            {r.education.filter(e => e.institution?.trim()).map(edu => (
-              <div key={edu.id} className="resume-entry">
-                <div className="flex items-baseline justify-between gap-2">
-                  <span className={`${s.entryRole} break-words`}>{edu.institution}</span>
-                  <span className={`${s.entryDate} shrink-0 whitespace-nowrap`}>
-                    {[edu.from, edu.to].filter(Boolean).join(' – ')}
-                  </span>
-                </div>
-                {(edu.degree || edu.field) && (
-                  <p className={`${s.entryCompany} break-words`}>
-                    {[edu.degree, edu.field].filter(Boolean).join(', ')}
-                  </p>
-                )}
+        <div className="resume-section mb-7">
+          <SLabel>Education</SLabel>
+          {r.education.filter(e => e.institution?.trim()).map(edu => (
+            <div key={edu.id} className="resume-entry mb-2">
+              <div className="flex justify-between items-baseline">
+                <span className="text-[10.5px] font-semibold text-gray-900">{edu.institution}</span>
+                <span className="text-[8.5px] text-gray-400 whitespace-nowrap">{[edu.from, edu.to].filter(Boolean).join(' – ')}</span>
               </div>
-            ))}
-          </div>
+              {(edu.degree || edu.field) && <p className="text-[9px] text-gray-400">{[edu.degree, edu.field].filter(Boolean).join(', ')}</p>}
+            </div>
+          ))}
         </div>
       )}
 
-      {/* Projects — card layout with tech pills + links */}
       {hasProjects && (
-        <div className={`resume-section ${s.sectionWrap}`}>
-          <div className={s.sectionLabel}>Projects</div>
-          <div className="flex flex-col gap-2.5">
+        <div className="resume-section mb-7">
+          <SLabel>Projects</SLabel>
+          <div className="flex flex-col gap-3">
             {r.projects.filter(p => p.name?.trim()).map(proj => (
               <div key={proj.id} className="resume-entry">
-                <div className="flex items-start justify-between gap-2">
-                  <span className={`${s.entryRole} break-words flex-1`}>{proj.name}</span>
-                  <div className="flex items-center gap-2 shrink-0 mt-0.5">
-                    {proj.liveUrl?.trim() && (
-                      <span className={`${s.entryDate} text-gray-500`}>↗ live</span>
-                    )}
-                    {proj.link?.trim() && (
-                      <span className={`${s.entryDate}`}>GH</span>
-                    )}
+                <div className="flex justify-between items-start">
+                  <span className="text-[10.5px] font-semibold text-gray-900">{proj.name}</span>
+                  <div className="flex gap-2 shrink-0 text-[8.5px] text-gray-400 mt-0.5">
+                    {proj.liveUrl?.trim() && <span>↗ live</span>}
+                    {proj.link?.trim()    && <span>GH</span>}
                   </div>
                 </div>
-                {proj.description?.trim() && (
-                  <p className={`${s.bulletText} mt-0.5 break-words`}>{proj.description}</p>
-                )}
-                {proj.techStack?.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-1.5">
-                    {proj.techStack.map(t => (
-                      <span key={t} className="text-[8.5px] border border-gray-200 text-gray-500 px-1.5 py-0.5 rounded-full leading-none">
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                {proj.description?.trim() && <p className="text-[9.5px] text-gray-500 break-words">{proj.description}</p>}
+                <TechPills stack={proj.techStack} accentColor={accent} />
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Skills — grouped pill badges */}
       {hasSkills && (
-        <div className={`resume-section ${s.sectionWrap}`}>
-          <div className={s.sectionLabel}>Skills</div>
-          {hasSkillGroups ? (
-            <div className="flex flex-col gap-1.5">
-              {Object.entries(sg).map(([key, arr]) => {
-                if (!arr?.length) return null
-                return (
-                  <div key={key} className="flex flex-wrap items-center gap-1">
-                    <span className="text-[8.5px] font-bold text-gray-400 uppercase tracking-wide mr-1 shrink-0">
-                      {SKILL_GROUP_LABELS[key] || key}:
-                    </span>
-                    {arr.map(skill => (
-                      <span key={skill}
-                        className="text-[8.5px] border border-gray-200 text-gray-600 px-1.5 py-0.5 rounded-full leading-none">
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                )
-              })}
-            </div>
-          ) : (
-            <p className={`${s.skillsText} break-words`}>{r.skills}</p>
-          )}
+        <div className="resume-section">
+          <SLabel>Skills</SLabel>
+          {r.skillGroups && Object.values(r.skillGroups).flat().length > 0
+            ? <SkillPills skillGroups={r.skillGroups} textStyle={{ color: accent }} />
+            : <p className="text-[9.5px] text-gray-600">{r.skills}</p>
+          }
         </div>
       )}
+    </div>
+  )
+}
 
+/* ── Main export ─────────────────────────────────────────── */
+export default function ResumeDocument({ resume, template = 'classic', colorId = 'teal', className = '' }) {
+  const r = resume || {}
+  const accent = getColorValue(colorId)
+  const contact = [r.email, r.phone, r.location].filter(v => v?.trim())
+  const isEmpty = !r.name?.trim() && !contact.length && !r.summary?.trim()
+    && !(r.experience?.length) && !(r.education?.length)
+
+  if (isEmpty) return <EmptyState className={className} />
+
+  const props = { r, accent }
+  return (
+    <div className={className}>
+      {template === 'modern'  && <ModernResume  {...props} />}
+      {template === 'minimal' && <MinimalResume {...props} />}
+      {(template === 'classic' || !template) && <ClassicResume {...props} />}
     </div>
   )
 }
