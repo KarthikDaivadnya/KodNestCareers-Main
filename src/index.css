@@ -40,16 +40,10 @@
     page-break-inside: avoid;
   }
 
-  /* Force white backgrounds everywhere */
+  /* Remove shadows everywhere but do NOT override background colors —
+     the Modern template's colored sidebar uses inline style and must print */
   * {
-    background-color: white !important;
     box-shadow: none !important;
-  }
-
-  /* Template modern left-border accent: keep it in print */
-  .border-l-\[3px\] {
-    border-left-width: 3px !important;
-    border-left-color: #111 !important;
   }
 }
 

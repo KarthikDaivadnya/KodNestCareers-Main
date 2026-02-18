@@ -243,7 +243,11 @@ export default function Preview() {
   const handleColor    = id => { setColorId(id);  saveColor(id)    }
 
   const showToast = msg => { setToast(msg); setTimeout(() => setToast(null), 3000) }
-  const handleDownload = () => showToast('PDF export ready! Check your downloads.')
+  const handleDownload = () => {
+    showToast('Opening print dialog — choose "Save as PDF"')
+    // Give the toast 300 ms to render before the print dialog blocks the thread
+    setTimeout(() => window.print(), 300)
+  }
 
   const handleCopy = async () => {
     const text = toPlainText(resume)

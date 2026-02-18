@@ -8,7 +8,7 @@ const NAV_LINKS = [
 
 export default function TopNav() {
   return (
-    <header className="h-14 px-8 bg-white border-b border-gray-200 flex items-center justify-between shrink-0 sticky top-0 z-50">
+    <header className="no-print h-14 px-8 bg-white border-b border-gray-200 flex items-center justify-between shrink-0 sticky top-0 z-50">
       {/* Brand */}
       <Link to="/" className="flex items-center gap-2.5 group">
         <div className="w-7 h-7 rounded-lg bg-gray-900 flex items-center justify-center">
