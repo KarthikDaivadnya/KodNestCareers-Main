@@ -1,40 +1,53 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
+import { ResumeProvider } from './context/ResumeContext'
+
+/* ── Layouts ── */
+import AppLayout from './layouts/AppLayout'
 import RBShell   from './layouts/RBShell'
+
+/* ── Product pages (/  /builder  /preview  /proof) ── */
+import Home       from './pages/Home'
+import Builder    from './pages/Builder'
+import Preview    from './pages/Preview'
+import ProofPage  from './pages/ProofPage'
+
+/* ── Build track pages (/rb/*) ── */
 import BuildStep from './pages/rb/BuildStep'
 import RBProof   from './pages/rb/RBProof'
 
 /**
- * AI Resume Builder — Build Track
- * Project 3 inside the KodNest Premium Build System
+ * AI Resume Builder — KodNest Premium Build · Project 3
  *
- * Routes:
- *   /rb/01-problem
- *   /rb/02-market
- *   /rb/03-architecture
- *   /rb/04-hld
- *   /rb/05-lld
- *   /rb/06-build
- *   /rb/07-test
- *   /rb/08-ship
- *   /rb/proof
+ * Product routes (AppLayout — top nav):
+ *   /              Home landing
+ *   /builder       Resume form + live preview
+ *   /preview       Full clean resume view
+ *   /proof         Proof of work + milestones
+ *
+ * Build track routes (RBShell — premium build layout):
+ *   /rb/01-problem … /rb/08-ship   8 gated build steps
+ *   /rb/proof                       Final submission
  */
 
 const router = createBrowserRouter([
-  /* Redirect root → first step */
+
+  /* ─── Product app ─────────────────────────────────────────── */
   {
-    path: '/',
-    element: <Navigate to="/rb/01-problem" replace />,
+    element: <AppLayout />,
+    children: [
+      { path: '/',        element: <Home /> },
+      { path: '/builder', element: <Builder /> },
+      { path: '/preview', element: <Preview /> },
+      { path: '/proof',   element: <ProofPage /> },
+    ],
   },
 
-  /* All /rb/* routes share the RBShell layout */
+  /* ─── Build track (/rb/*) ─────────────────────────────────── */
   {
     path: '/rb',
     element: <RBShell />,
     children: [
-      /* Redirect /rb → step 1 */
-      { index: true, element: <Navigate to="/rb/01-problem" replace /> },
-
-      /* ── 8 Build Steps ── */
+      { index: true,           element: <Navigate to="/rb/01-problem" replace /> },
       { path: '01-problem',    element: <BuildStep stepNum={1} /> },
       { path: '02-market',     element: <BuildStep stepNum={2} /> },
       { path: '03-architecture', element: <BuildStep stepNum={3} /> },
@@ -43,19 +56,18 @@ const router = createBrowserRouter([
       { path: '06-build',      element: <BuildStep stepNum={6} /> },
       { path: '07-test',       element: <BuildStep stepNum={7} /> },
       { path: '08-ship',       element: <BuildStep stepNum={8} /> },
-
-      /* ── Proof page ── */
       { path: 'proof',         element: <RBProof /> },
     ],
   },
 
-  /* Catch-all → step 1 */
-  {
-    path: '*',
-    element: <Navigate to="/rb/01-problem" replace />,
-  },
+  /* ─── Catch-all ────────────────────────────────────────────── */
+  { path: '*', element: <Navigate to="/" replace /> },
 ])
 
 export default function App() {
-  return <RouterProvider router={router} />
+  return (
+    <ResumeProvider>
+      <RouterProvider router={router} />
+    </ResumeProvider>
+  )
 }
