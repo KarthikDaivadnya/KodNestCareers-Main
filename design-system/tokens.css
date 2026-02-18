@@ -1,0 +1,132 @@
+/* ============================================================
+   KodNest Premium Build System — Design Tokens
+   Single source of truth for all design decisions.
+   Do not hardcode values outside of this file.
+   ============================================================ */
+
+:root {
+
+  /* ── COLOR PALETTE ──────────────────────────────────────── */
+
+  /* Background */
+  --color-bg:             #F7F6F3;
+  --color-bg-subtle:      #EFEDE8;   /* slight contrast for cards / panels */
+  --color-bg-panel:       #F0EEE9;
+
+  /* Text */
+  --color-text-primary:   #111111;
+  --color-text-secondary: #4A4A4A;
+  --color-text-muted:     #767676;
+  --color-text-inverse:   #FFFFFF;
+
+  /* Accent (deep red) */
+  --color-accent:         #8B0000;
+  --color-accent-hover:   #6E0000;
+  --color-accent-subtle:  #F5EDED;   /* very light red tint for focus rings, tags */
+
+  /* Borders */
+  --color-border:         #D6D3CC;
+  --color-border-strong:  #B8B3A8;
+  --color-border-focus:   #8B0000;
+
+  /* Semantic — Success */
+  --color-success:        #2E6B4F;
+  --color-success-bg:     #EAF3EE;
+
+  /* Semantic — Warning */
+  --color-warning:        #7A5C00;
+  --color-warning-bg:     #F6F0DC;
+
+  /* Semantic — Error */
+  --color-error:          #8B0000;
+  --color-error-bg:       #F5EDED;
+
+
+  /* ── TYPOGRAPHY ─────────────────────────────────────────── */
+
+  /* Families */
+  --font-serif:    'Georgia', 'Times New Roman', serif;
+  --font-sans:     'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono:     'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+
+  /* Scale */
+  --text-xs:       0.75rem;    /* 12px */
+  --text-sm:       0.875rem;   /* 14px */
+  --text-base:     1rem;       /* 16px */
+  --text-md:       1.125rem;   /* 18px */
+  --text-lg:       1.25rem;    /* 20px */
+  --text-xl:       1.5rem;     /* 24px */
+  --text-2xl:      1.875rem;   /* 30px */
+  --text-3xl:      2.25rem;    /* 36px */
+  --text-4xl:      2.75rem;    /* 44px */
+  --text-5xl:      3.5rem;     /* 56px */
+
+  /* Line heights */
+  --leading-tight:  1.25;
+  --leading-snug:   1.4;
+  --leading-body:   1.7;
+  --leading-loose:  1.85;
+
+  /* Letter spacing */
+  --tracking-tight:  -0.02em;
+  --tracking-normal:  0em;
+  --tracking-wide:    0.04em;
+  --tracking-widest:  0.1em;
+
+  /* Font weights */
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+
+
+  /* ── SPACING SCALE ──────────────────────────────────────── */
+  /* Only these values. Never use arbitrary pixels. */
+
+  --space-1:   8px;
+  --space-2:  16px;
+  --space-3:  24px;
+  --space-4:  40px;
+  --space-5:  64px;
+  --space-6:  96px;
+  --space-7: 128px;
+
+
+  /* ── LAYOUT ─────────────────────────────────────────────── */
+
+  --width-text-max:     720px;   /* max width for readable text blocks */
+  --width-content:     1200px;   /* max width for page content */
+  --width-workspace:      70%;
+  --width-panel:          30%;
+
+  --height-topbar:        56px;
+  --height-context-header: auto;
+
+
+  /* ── BORDERS & RADIUS ───────────────────────────────────── */
+
+  --radius-sm:   4px;
+  --radius-md:   6px;
+  --radius-lg:   8px;
+  --radius-xl:  12px;
+
+  --border-width:       1px;
+  --border-width-focus: 2px;
+
+
+  /* ── TRANSITIONS ────────────────────────────────────────── */
+
+  --duration-fast:   150ms;
+  --duration-base:   200ms;
+  --ease:            ease-in-out;
+  --transition-base: var(--duration-base) var(--ease);
+  --transition-fast: var(--duration-fast) var(--ease);
+
+
+  /* ── ELEVATION (no drop shadows — border-based depth) ───── */
+  /* Cards and panels use borders, not shadows. */
+
+  --shadow-none:   none;
+  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.05);   /* only for floating elements like dropdowns */
+
+}
