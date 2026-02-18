@@ -9,6 +9,8 @@ import Profile      from './pages/Profile'
 import Analyzer     from './pages/Analyzer'
 import Results      from './pages/Results'
 import History      from './pages/History'
+import TestChecklist from './pages/TestChecklist'
+import Ship          from './pages/Ship'
 
 const router = createBrowserRouter([
   {
@@ -27,6 +29,8 @@ const router = createBrowserRouter([
       { path: 'analyzer',           element: <Analyzer /> },
       { path: 'results',            element: <Results /> },
       { path: 'history',            element: <History /> },
+      { path: 'test',               element: <TestChecklist /> },
+      { path: 'ship',               element: <Ship /> },
     ],
   },
 ])

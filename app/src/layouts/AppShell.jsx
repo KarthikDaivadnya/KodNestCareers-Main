@@ -8,6 +8,8 @@ import {
   Sparkles,
   FileSearch,
   Clock,
+  CheckSquare,
+  Rocket,
 } from 'lucide-react'
 
 const navItems = [
@@ -22,6 +24,11 @@ const analyzerItems = [
   { to: '/dashboard/analyzer', label: 'JD Analyzer', icon: Sparkles },
   { to: '/dashboard/results',  label: 'Results',     icon: FileSearch },
   { to: '/dashboard/history',  label: 'History',     icon: Clock },
+]
+
+const qualityItems = [
+  { to: '/dashboard/test', label: 'Test Checklist', icon: CheckSquare },
+  { to: '/dashboard/ship', label: 'Ship',           icon: Rocket },
 ]
 
 export default function AppShell() {
@@ -68,6 +75,30 @@ export default function AppShell() {
           </div>
 
           {analyzerItems.map(({ to, label, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150 ${
+                  isActive
+                    ? 'bg-primary-50 text-primary-600'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`
+              }
+            >
+              <Icon className="w-4 h-4 shrink-0" />
+              {label}
+            </NavLink>
+          ))}
+
+          {/* Quality / Ship section */}
+          <div className="mt-4 mb-1.5 px-3">
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              Quality
+            </span>
+          </div>
+
+          {qualityItems.map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}
