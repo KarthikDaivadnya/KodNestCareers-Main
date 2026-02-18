@@ -1,0 +1,31 @@
+{
+  "name": "kodnestcareers",
+  "version": "1.0.0",
+  "private": true,
+  "description": "KodNestCareers — Production B2C Career Ecosystem Monorepo",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build":                    "turbo run build",
+    "dev":                      "turbo run dev",
+    "lint":                     "turbo run lint",
+    "clean":                    "turbo run clean && rm -rf node_modules",
+
+    "build:job-tracker":        "npm run build --workspace=apps/job-tracker",
+    "build:placement-platform": "npm run build --workspace=apps/placement-platform",
+    "build:resume-builder":     "npm run build --workspace=apps/resume-builder",
+
+    "dev:job-tracker":          "npm run dev --workspace=apps/job-tracker",
+    "dev:placement-platform":   "npm run dev --workspace=apps/placement-platform",
+    "dev:resume-builder":       "npm run dev --workspace=apps/resume-builder"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.0"
+  },
+  "engines": {
+    "node": ">=18.17.0",
+    "npm":  ">=9.0.0"
+  }
+}
