@@ -1,26 +1,8 @@
-/**
- * ResumeDocument — shared resume renderer
- * Used in Builder (right panel, scaled) and Preview (full size).
- * Sections only render when they contain real data.
- */
+import { TEMPLATE_STYLES } from '../lib/templates'
 
-/* ── Section heading ──────────────────────────────────────────── */
-function SectionHeading({ children }) {
-  return (
-    <div className="mb-3 mt-1">
-      <h2
-        style={{ fontFamily: 'Georgia, Times New Roman, serif' }}
-        className="text-[9px] font-bold tracking-[0.18em] uppercase text-gray-500 border-b border-gray-300 pb-1.5"
-      >
-        {children}
-      </h2>
-    </div>
-  )
-}
-
-/* ── Main document ───────────────────────────────────────────── */
-export default function ResumeDocument({ resume, className = '' }) {
+export default function ResumeDocument({ resume, template = 'classic', className = '' }) {
   const r = resume || {}
+  const s = TEMPLATE_STYLES[template] ?? TEMPLATE_STYLES.classic
 
   const hasSummary  = !!(r.summary?.trim())
   const hasEdu      = Array.isArray(r.education)  && r.education.some(e => e.institution?.trim())
@@ -30,15 +12,12 @@ export default function ResumeDocument({ resume, className = '' }) {
   const hasGitHub   = !!(r.github?.trim())
   const hasLinkedIn = !!(r.linkedin?.trim())
   const hasLinks    = hasGitHub || hasLinkedIn
-
-  const contactParts = [r.email, r.phone, r.location].filter(s => s?.trim())
-  const isEmpty = !r.name?.trim() && contactParts.length === 0 && !hasSummary && !hasExp && !hasEdu
+  const contactParts = [r.email, r.phone, r.location].filter(v => v?.trim())
+  const isEmpty = !r.name?.trim() && !contactParts.length && !hasSummary && !hasExp && !hasEdu
 
   if (isEmpty) {
     return (
-      <div
-        className={`bg-white p-10 flex flex-col items-center justify-center text-center min-h-[400px] ${className}`}
-      >
+      <div className={`bg-white p-10 flex flex-col items-center justify-center text-center min-h-[400px] ${className}`}>
         <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-4">
           <span className="text-lg">📄</span>
         </div>
@@ -49,59 +28,48 @@ export default function ResumeDocument({ resume, className = '' }) {
   }
 
   return (
-    <div
-      className={`bg-white text-gray-900 p-8 leading-normal ${className}`}
-      style={{ fontFamily: 'Georgia, Times New Roman, serif' }}
-    >
+    <div className={`bg-white text-gray-900 p-8 ${className}`} style={{ fontFamily: s.fontFamily }}>
 
-      {/* ── Header / Name ── */}
-      <div className="text-center mb-5 pb-4 border-b border-gray-300">
-        <h1 className="text-[22px] font-bold tracking-tight text-gray-950 leading-tight">
+      {/* Header */}
+      <div className={`${s.headerAlign} ${s.headerBorder}`}>
+        <h1 className={s.nameClass}>
           {r.name?.trim() || <span className="text-gray-300 italic text-base">Your Name</span>}
         </h1>
-
         {contactParts.length > 0 && (
-          <p className="text-[10px] text-gray-500 mt-1 tracking-wide">
-            {contactParts.join('  ·  ')}
-          </p>
+          <p className={s.contactClass}>{contactParts.join('  ·  ')}</p>
         )}
-
         {hasLinks && (
-          <p className="text-[10px] text-gray-400 mt-1 space-x-4">
-            {hasGitHub   && <span>{r.github}</span>}
+          <p className={s.linkClass}>
+            {hasGitHub && <span className="mr-3">{r.github}</span>}
             {hasLinkedIn && <span>{r.linkedin}</span>}
           </p>
         )}
       </div>
 
-      {/* ── Summary ── */}
+      {/* Summary */}
       {hasSummary && (
-        <div className="mb-4">
-          <SectionHeading>Summary</SectionHeading>
-          <p className="text-[10.5px] text-gray-700 leading-[1.65]">{r.summary}</p>
+        <div className={s.sectionWrap}>
+          <div className={s.sectionLabel}>Summary</div>
+          <p className={s.bodyText}>{r.summary}</p>
         </div>
       )}
 
-      {/* ── Experience ── */}
+      {/* Experience */}
       {hasExp && (
-        <div className="mb-4">
-          <SectionHeading>Experience</SectionHeading>
-          <div className="flex flex-col gap-3.5">
-            {r.experience.filter(e => e.company?.trim() || e.role?.trim()).map((exp) => (
+        <div className={s.sectionWrap}>
+          <div className={s.sectionLabel}>Experience</div>
+          <div className="flex flex-col gap-3">
+            {r.experience.filter(e => e.company?.trim() || e.role?.trim()).map(exp => (
               <div key={exp.id}>
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="text-[11px] font-bold text-gray-900 leading-snug">
-                    {exp.role?.trim() || <em className="text-gray-300">Role</em>}
-                  </span>
-                  <span className="text-[9.5px] text-gray-400 shrink-0 whitespace-nowrap">
-                    {[exp.from, exp.to].filter(Boolean).join(' – ')}
-                  </span>
+                  <span className={s.entryRole}>{exp.role}</span>
+                  <span className={s.entryDate}>{[exp.from, exp.to].filter(Boolean).join(' – ')}</span>
                 </div>
-                <p className="text-[10px] text-gray-500 italic mb-1">{exp.company}</p>
-                {Array.isArray(exp.bullets) && exp.bullets.filter(Boolean).length > 0 && (
+                <p className={s.entryCompany}>{exp.company}</p>
+                {exp.bullets?.filter(Boolean).length > 0 && (
                   <ul className="list-disc list-outside ml-4 flex flex-col gap-0.5 mt-1">
                     {exp.bullets.filter(Boolean).map((b, i) => (
-                      <li key={i} className="text-[10px] text-gray-700 leading-snug">{b}</li>
+                      <li key={i} className={s.bulletText}>{b}</li>
                     ))}
                   </ul>
                 )}
@@ -111,23 +79,19 @@ export default function ResumeDocument({ resume, className = '' }) {
         </div>
       )}
 
-      {/* ── Education ── */}
+      {/* Education */}
       {hasEdu && (
-        <div className="mb-4">
-          <SectionHeading>Education</SectionHeading>
+        <div className={s.sectionWrap}>
+          <div className={s.sectionLabel}>Education</div>
           <div className="flex flex-col gap-2">
-            {r.education.filter(e => e.institution?.trim()).map((edu) => (
+            {r.education.filter(e => e.institution?.trim()).map(edu => (
               <div key={edu.id}>
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="text-[11px] font-bold text-gray-900">{edu.institution}</span>
-                  <span className="text-[9.5px] text-gray-400 shrink-0 whitespace-nowrap">
-                    {[edu.from, edu.to].filter(Boolean).join(' – ')}
-                  </span>
+                  <span className={s.entryRole}>{edu.institution}</span>
+                  <span className={s.entryDate}>{[edu.from, edu.to].filter(Boolean).join(' – ')}</span>
                 </div>
                 {(edu.degree || edu.field) && (
-                  <p className="text-[10px] text-gray-500 italic">
-                    {[edu.degree, edu.field].filter(Boolean).join(', ')}
-                  </p>
+                  <p className={s.entryCompany}>{[edu.degree, edu.field].filter(Boolean).join(', ')}</p>
                 )}
               </div>
             ))}
@@ -135,33 +99,29 @@ export default function ResumeDocument({ resume, className = '' }) {
         </div>
       )}
 
-      {/* ── Projects ── */}
+      {/* Projects */}
       {hasProjects && (
-        <div className="mb-4">
-          <SectionHeading>Projects</SectionHeading>
-          <div className="flex flex-col gap-2.5">
-            {r.projects.filter(p => p.name?.trim()).map((proj) => (
+        <div className={s.sectionWrap}>
+          <div className={s.sectionLabel}>Projects</div>
+          <div className="flex flex-col gap-2">
+            {r.projects.filter(p => p.name?.trim()).map(proj => (
               <div key={proj.id}>
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="text-[11px] font-bold text-gray-900">{proj.name}</span>
-                  {proj.link?.trim() && (
-                    <span className="text-[9px] text-gray-400 shrink-0 truncate max-w-[160px]">{proj.link}</span>
-                  )}
+                  <span className={s.entryRole}>{proj.name}</span>
+                  {proj.link?.trim() && <span className={s.entryDate + ' truncate max-w-[160px]'}>{proj.link}</span>}
                 </div>
-                {proj.description?.trim() && (
-                  <p className="text-[10px] text-gray-700 leading-snug mt-0.5">{proj.description}</p>
-                )}
+                {proj.description?.trim() && <p className={s.bulletText + ' mt-0.5'}>{proj.description}</p>}
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* ── Skills ── */}
+      {/* Skills */}
       {hasSkills && (
-        <div className="mb-4">
-          <SectionHeading>Skills</SectionHeading>
-          <p className="text-[10px] text-gray-700 leading-relaxed">{r.skills}</p>
+        <div className={s.sectionWrap}>
+          <div className={s.sectionLabel}>Skills</div>
+          <p className={s.skillsText}>{r.skills}</p>
         </div>
       )}
 
