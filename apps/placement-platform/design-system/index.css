@@ -1,0 +1,23 @@
+/* ============================================================
+   KodNest Premium Build System — Main Entry Point
+   Import order matters. Do not reorder.
+
+   1. tokens    — CSS custom properties (all design decisions)
+   2. reset     — baseline normalization
+   3. typography — heading + body scale
+   4. layout    — page shell, top bar, context header, workspace, panel, footer
+   5. components — buttons, cards, inputs, badges, checkboxes, states
+   6. utilities — purposeful helpers
+
+   Usage:
+     <link rel="stylesheet" href="design-system/index.css">
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@import './tokens.css';
+@import './reset.css';
+@import './typography.css';
+@import './layout.css';
+@import './components.css';
+@import './utilities.css';

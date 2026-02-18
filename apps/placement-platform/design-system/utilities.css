@@ -1,0 +1,186 @@
+/* ============================================================
+   KodNest Premium Build System — Utilities
+   Purposeful helpers only. Not a utility framework.
+   Every class here has a clear reason to exist.
+   ============================================================ */
+
+
+/* ── Display ────────────────────────────────────────────── */
+
+.flex         { display: flex; }
+.flex-col     { display: flex; flex-direction: column; }
+.inline-flex  { display: inline-flex; }
+.block        { display: block; }
+.hidden       { display: none; }
+
+.items-start  { align-items: flex-start; }
+.items-center { align-items: center; }
+.items-end    { align-items: flex-end; }
+
+.justify-start    { justify-content: flex-start; }
+.justify-center   { justify-content: center; }
+.justify-end      { justify-content: flex-end; }
+.justify-between  { justify-content: space-between; }
+
+.flex-1   { flex: 1; }
+.flex-wrap { flex-wrap: wrap; }
+
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+
+
+/* ── Spacing ────────────────────────────────────────────── */
+
+.mt-1 { margin-top: var(--space-1); }
+.mt-2 { margin-top: var(--space-2); }
+.mt-3 { margin-top: var(--space-3); }
+.mt-4 { margin-top: var(--space-4); }
+.mt-5 { margin-top: var(--space-5); }
+
+.mb-1 { margin-bottom: var(--space-1); }
+.mb-2 { margin-bottom: var(--space-2); }
+.mb-3 { margin-bottom: var(--space-3); }
+.mb-4 { margin-bottom: var(--space-4); }
+
+.ml-auto { margin-left: auto; }
+.mr-auto { margin-right: auto; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+
+.p-1 { padding: var(--space-1); }
+.p-2 { padding: var(--space-2); }
+.p-3 { padding: var(--space-3); }
+.p-4 { padding: var(--space-4); }
+
+.px-2 { padding-left: var(--space-2); padding-right: var(--space-2); }
+.px-3 { padding-left: var(--space-3); padding-right: var(--space-3); }
+.px-4 { padding-left: var(--space-4); padding-right: var(--space-4); }
+
+.py-1 { padding-top: var(--space-1); padding-bottom: var(--space-1); }
+.py-2 { padding-top: var(--space-2); padding-bottom: var(--space-2); }
+.py-3 { padding-top: var(--space-3); padding-bottom: var(--space-3); }
+
+
+/* ── Width ──────────────────────────────────────────────── */
+
+.w-full   { width: 100%; }
+.w-auto   { width: auto; }
+.max-text { max-width: var(--width-text-max); }
+.max-content { max-width: var(--width-content); }
+
+
+/* ── Color utilities ────────────────────────────────────── */
+
+.text-primary   { color: var(--color-text-primary); }
+.text-secondary { color: var(--color-text-secondary); }
+.text-muted     { color: var(--color-text-muted); }
+.text-accent    { color: var(--color-accent); }
+.text-success   { color: var(--color-success); }
+.text-warning   { color: var(--color-warning); }
+.text-error     { color: var(--color-error); }
+.text-inverse   { color: var(--color-text-inverse); }
+
+.bg-base   { background-color: var(--color-bg); }
+.bg-subtle { background-color: var(--color-bg-subtle); }
+.bg-panel  { background-color: var(--color-bg-panel); }
+.bg-accent { background-color: var(--color-accent); }
+
+
+/* ── Typography utilities ───────────────────────────────── */
+
+.text-xs   { font-size: var(--text-xs); }
+.text-sm   { font-size: var(--text-sm); }
+.text-base { font-size: var(--text-base); }
+.text-md   { font-size: var(--text-md); }
+.text-lg   { font-size: var(--text-lg); }
+.text-xl   { font-size: var(--text-xl); }
+
+.font-sans  { font-family: var(--font-sans); }
+.font-serif { font-family: var(--font-serif); }
+.font-mono  { font-family: var(--font-mono); }
+
+.font-regular  { font-weight: var(--weight-regular); }
+.font-medium   { font-weight: var(--weight-medium); }
+.font-semibold { font-weight: var(--weight-semibold); }
+.font-bold     { font-weight: var(--weight-bold); }
+
+.text-left   { text-align: left; }
+.text-center { text-align: center; }
+.text-right  { text-align: right; }
+
+.uppercase { text-transform: uppercase; }
+.no-decoration { text-decoration: none; }
+
+.leading-tight { line-height: var(--leading-tight); }
+.leading-body  { line-height: var(--leading-body); }
+
+.tracking-wide    { letter-spacing: var(--tracking-wide); }
+.tracking-widest  { letter-spacing: var(--tracking-widest); }
+.tracking-tight   { letter-spacing: var(--tracking-tight); }
+
+.truncate {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+
+/* ── Border utilities ───────────────────────────────────── */
+
+.border        { border: var(--border-width) solid var(--color-border); }
+.border-top    { border-top: var(--border-width) solid var(--color-border); }
+.border-bottom { border-bottom: var(--border-width) solid var(--color-border); }
+.border-none   { border: none; }
+
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-xl { border-radius: var(--radius-xl); }
+.rounded-full { border-radius: 9999px; }
+
+
+/* ── Overflow ───────────────────────────────────────────── */
+
+.overflow-hidden  { overflow: hidden; }
+.overflow-auto    { overflow: auto; }
+.overflow-x-auto  { overflow-x: auto; }
+
+
+/* ── Position ───────────────────────────────────────────── */
+
+.relative { position: relative; }
+.absolute { position: absolute; }
+.sticky   { position: sticky; }
+
+.inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+
+
+/* ── Interaction ────────────────────────────────────────── */
+
+.cursor-pointer { cursor: pointer; }
+.cursor-default { cursor: default; }
+.pointer-none   { pointer-events: none; }
+.select-none    { user-select: none; }
+
+.opacity-0   { opacity: 0; }
+.opacity-40  { opacity: 0.4; }
+.opacity-100 { opacity: 1; }
+
+.transition { transition: all var(--transition-base); }
+
+
+/* ── Accessibility ──────────────────────────────────────── */
+
+/* Visually hidden, but readable by screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
