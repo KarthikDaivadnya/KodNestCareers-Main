@@ -5,6 +5,9 @@ import {
   ClipboardList,
   BookOpen,
   UserCircle,
+  Sparkles,
+  FileSearch,
+  Clock,
 } from 'lucide-react'
 
 const navItems = [
@@ -13,6 +16,12 @@ const navItems = [
   { to: '/dashboard/assessments', label: 'Assessments', icon: ClipboardList },
   { to: '/dashboard/resources',   label: 'Resources',   icon: BookOpen },
   { to: '/dashboard/profile',     label: 'Profile',     icon: UserCircle },
+]
+
+const analyzerItems = [
+  { to: '/dashboard/analyzer', label: 'JD Analyzer', icon: Sparkles },
+  { to: '/dashboard/results',  label: 'Results',     icon: FileSearch },
+  { to: '/dashboard/history',  label: 'History',     icon: Clock },
 ]
 
 export default function AppShell() {
@@ -30,7 +39,9 @@ export default function AppShell() {
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 px-3 py-4 flex flex-col gap-0.5">
+        <nav className="flex-1 px-3 py-4 flex flex-col gap-0.5 overflow-y-auto">
+
+          {/* Core navigation */}
           {navItems.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
@@ -48,6 +59,31 @@ export default function AppShell() {
               {label}
             </NavLink>
           ))}
+
+          {/* Analyzer section divider */}
+          <div className="mt-4 mb-1.5 px-3">
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              JD Analysis
+            </span>
+          </div>
+
+          {analyzerItems.map(({ to, label, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150 ${
+                  isActive
+                    ? 'bg-primary-50 text-primary-600'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`
+              }
+            >
+              <Icon className="w-4 h-4 shrink-0" />
+              {label}
+            </NavLink>
+          ))}
+
         </nav>
 
         {/* Bottom user hint */}
