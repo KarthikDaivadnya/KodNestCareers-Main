@@ -1,5 +1,58 @@
 @import "tailwindcss";
 
+/* ── Print styles ─────────────────────────────────────────────────── */
+@media print {
+  @page {
+    size: A4;
+    margin: 0.65in 0.75in;
+  }
+
+  /* Hide all non-resume UI */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Full-width, no chrome */
+  body {
+    background: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Remove shadows / rings from resume container */
+  .print-resume-wrap {
+    max-width: 100% !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+    border: none !important;
+  }
+
+  /* Page break: keep each resume entry block together */
+  .resume-entry {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Don't cut section headings off */
+  .resume-section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Force white backgrounds everywhere */
+  * {
+    background-color: white !important;
+    box-shadow: none !important;
+  }
+
+  /* Template modern left-border accent: keep it in print */
+  .border-l-\[3px\] {
+    border-left-width: 3px !important;
+    border-left-color: #111 !important;
+  }
+}
+
 @theme {
   --color-primary-50:  hsl(245, 58%, 97%);
   --color-primary-100: hsl(245, 58%, 92%);
