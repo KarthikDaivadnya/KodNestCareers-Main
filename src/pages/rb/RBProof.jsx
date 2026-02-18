@@ -28,25 +28,36 @@ function isValidUrl(str) {
   } catch { return false }
 }
 
-function buildSubmissionText(links, statuses) {
-  const stepLines = RB_STEPS.map((s, i) =>
-    `Step ${String(s.id).padStart(2, '0')} — ${s.label}: ${statuses[i] ? '✓ Complete' : '✗ Pending'}`
-  )
+function loadTestResults() {
+  try {
+    const raw = localStorage.getItem('rb_test_checklist')
+    if (!raw) return false
+    const parsed = JSON.parse(raw)
+    if (Array.isArray(parsed)) return parsed.length >= 10 && parsed.every(Boolean)
+    if (typeof parsed === 'object') {
+      const vals = Object.values(parsed)
+      return vals.length >= 10 && vals.every(Boolean)
+    }
+    return false
+  } catch { return false }
+}
+
+function buildSubmissionText(links) {
   return [
-    '══════════════════════════════════════════════',
-    'AI RESUME BUILDER — Final Submission',
-    'KodNest Premium Build · Project 3',
-    '══════════════════════════════════════════════',
+    '------------------------------------------',
+    'AI Resume Builder — Final Submission',
     '',
-    'Step Completion:',
-    ...stepLines,
+    `Lovable Project: ${links.lovable  || '(not provided)'}`,
+    `GitHub Repository: ${links.github   || '(not provided)'}`,
+    `Live Deployment: ${links.deployed || '(not provided)'}`,
     '',
-    'Proof Links:',
-    `  Lovable Project:    ${links.lovable  || '(not provided)'}`,
-    `  GitHub Repository:  ${links.github   || '(not provided)'}`,
-    `  Deployed URL:       ${links.deployed || '(not provided)'}`,
-    '',
-    '══════════════════════════════════════════════',
+    'Core Capabilities:',
+    '- Structured resume builder',
+    '- Deterministic ATS scoring',
+    '- Template switching',
+    '- PDF export with clean formatting',
+    '- Persistence + validation checklist',
+    '------------------------------------------',
   ].join('\n')
 }
 
@@ -130,9 +141,12 @@ export default function RBProof() {
     isValidUrl(links.github) === true &&
     isValidUrl(links.deployed) === true
 
-  const isShipped = allComplete && allLinksValid
+  const allTestsPassed = loadTestResults()
 
-  const submissionText = buildSubmissionText(links, statuses)
+  /* NON-NEGOTIABLE: ALL THREE conditions required */
+  const isShipped = allComplete && allTestsPassed && allLinksValid
+
+  const submissionText = buildSubmissionText(links)
 
   return (
     <div className="max-w-3xl">
@@ -171,13 +185,14 @@ export default function RBProof() {
           </span>
           <p className="text-xs text-gray-500 mt-1.5">
             {isShipped
-              ? 'All 8 steps complete + all links provided. Project verified!'
-              : `${completedCount}/8 steps · ${allLinksValid ? 'All links provided' : 'Links pending'}`}
+              ? 'All 8 steps complete · All 10 tests passed · All links provided.'
+              : `${completedCount}/8 steps · ${allTestsPassed ? '10/10 tests' : 'Tests pending'} · ${allLinksValid ? 'Links ✓' : 'Links pending'}`}
           </p>
         </div>
         {!isShipped && (
           <div className="text-xs text-amber-700 flex flex-col gap-0.5">
-            {!allComplete    && <span>✗ {8 - completedCount} step{8 - completedCount !== 1 ? 's' : ''} not yet complete</span>}
+            {!allComplete   && <span>✗ {8 - completedCount} step{8 - completedCount !== 1 ? 's' : ''} not yet complete</span>}
+            {!allTestsPassed && <span>✗ Step 7 test checklist not fully complete (needs 10/10)</span>}
             {!allLinksValid  && <span>✗ Proof links incomplete or invalid</span>}
           </div>
         )}
@@ -297,21 +312,17 @@ export default function RBProof() {
           </CardContent>
         </Card>
 
-        {/* ── Shipped state ── */}
+        {/* ── Shipped state — calm, premium ── */}
         {isShipped && (
-          <div className="px-6 py-8 bg-gray-900 rounded-2xl text-center flex flex-col gap-4">
-            <div className="inline-flex items-center justify-center mx-auto w-14 h-14 rounded-full bg-green-500/20 border border-green-500/30">
-              <Rocket className="w-7 h-7 text-green-400" />
-            </div>
-            <div className="flex flex-col gap-2">
-              <p className="text-white text-xl font-bold">You built a real product.</p>
-              <p className="text-gray-400 text-sm leading-relaxed max-w-sm mx-auto">
-                Not a tutorial. Not a clone.<br />
-                A structured AI tool that solves a real hiring problem.
-              </p>
-              <p className="text-gray-300 text-sm font-semibold mt-1">
-                This is your proof of work. — KodNest Premium Build ✦
-              </p>
+          <div className="border border-green-200 bg-green-50 rounded-xl px-6 py-6">
+            <p className="text-sm font-semibold text-green-800">Project 3 Shipped Successfully.</p>
+            <p className="text-xs text-green-600 mt-1.5 leading-relaxed">
+              All 8 build steps complete · All 10 quality tests passed · All proof links verified.
+            </p>
+            <div className="mt-4 flex flex-col gap-1 text-xs text-green-700">
+              <span>Lovable: {links.lovable}</span>
+              <span>GitHub: {links.github}</span>
+              <span>Live: {links.deployed}</span>
             </div>
           </div>
         )}
