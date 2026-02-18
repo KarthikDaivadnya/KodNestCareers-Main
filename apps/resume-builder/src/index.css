@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+/* ── Print styles ─────────────────────────────────────────────────── */
+@media print {
+  @page {
+    size: A4;
+    margin: 0.65in 0.75in;
+  }
+
+  /* Hide all non-resume UI */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Full-width, no chrome */
+  body {
+    background: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Remove shadows / rings from resume container */
+  .print-resume-wrap {
+    max-width: 100% !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+    border: none !important;
+  }
+
+  /* Page break: keep each resume entry block together */
+  .resume-entry {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Don't cut section headings off */
+  .resume-section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Remove shadows everywhere but do NOT override background colors —
+     the Modern template's colored sidebar uses inline style and must print */
+  * {
+    box-shadow: none !important;
+  }
+}
+
+@theme {
+  --color-primary-50:  hsl(245, 58%, 97%);
+  --color-primary-100: hsl(245, 58%, 92%);
+  --color-primary-200: hsl(245, 58%, 83%);
+  --color-primary-300: hsl(245, 58%, 72%);
+  --color-primary-400: hsl(245, 58%, 62%);
+  --color-primary-500: hsl(245, 58%, 51%);
+  --color-primary-600: hsl(245, 58%, 43%);
+  --color-primary-700: hsl(245, 58%, 35%);
+  --color-primary-800: hsl(245, 58%, 26%);
+  --color-primary-900: hsl(245, 58%, 18%);
+
+  --font-family-sans: 'Inter', system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  body {
+    background-color: var(--color-gray-50, #f9fafb);
+    color: var(--color-gray-900, #111827);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
