@@ -3,468 +3,400 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>KodNest Premium Build System — Design System</title>
-  <link rel="stylesheet" href="./index.css" />
+  <title>Job Notification Tracker — KodNest Premium Build</title>
+  <link rel="stylesheet" href="./tokens.css" />
+  <link rel="stylesheet" href="./base.css" />
+  <link rel="stylesheet" href="./layout.css" />
+  <link rel="stylesheet" href="./components.css" />
+  <link rel="stylesheet" href="./utilities.css" />
   <style>
-    /* Showcase-only chrome — not part of the design system */
-    .ds-section { padding: var(--space-xl) 0; border-bottom: var(--border-width) solid var(--color-border); }
-    .ds-section:last-child { border-bottom: none; }
-    .ds-section-title { font-family: var(--font-serif); font-size: var(--text-2xl); color: var(--color-text-primary); letter-spacing: var(--tracking-tight); margin-bottom: 4px; }
-    .ds-section-desc  { font-size: var(--text-sm); color: var(--color-text-muted); max-width: none; margin-bottom: var(--space-lg); }
-    .ds-row  { display: flex; flex-wrap: wrap; gap: var(--space-sm); align-items: flex-start; }
-    .ds-col  { display: flex; flex-direction: column; gap: var(--space-sm); }
-    .ds-swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--space-sm); }
-    .ds-swatch { display: flex; flex-direction: column; gap: 6px; }
-    .ds-swatch-color { height: 48px; border-radius: var(--radius-md); border: var(--border-width) solid var(--color-border); }
-    .ds-swatch-name  { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-primary); font-weight: var(--weight-medium); }
-    .ds-swatch-val   { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-muted); }
-    .ds-specimen { padding: var(--space-md) 0; border-bottom: var(--border-width) solid var(--color-border); }
-    .ds-specimen:last-child { border-bottom: none; }
-    .ds-specimen-meta { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-muted); margin-bottom: var(--space-xs); }
+    /* Dashboard-specific overrides */
+    body { background-color: var(--color-bg-base); }
+    .dashboard-hero { padding: 64px 0 48px; text-align: center; }
+    .dashboard-hero-eyebrow { 
+      display: inline-flex; align-items: center; gap: 8px; 
+      background-color: var(--color-accent-subtle); color: var(--color-accent);
+      font-size: var(--text-xs); font-weight: var(--weight-semibold);
+      padding: 6px 12px; border-radius: 9999px; margin-bottom: 32px; text-transform: uppercase; letter-spacing: 0.1em;
+    }
+    .dashboard-hero-eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background-color: var(--color-accent); }
+    .dashboard-hero h1 {
+      font-family: var(--font-serif); font-size: 56px; font-weight: var(--weight-bold);
+      line-height: 1.1; letter-spacing: -0.02em; color: var(--color-text-primary); margin-bottom: 20px;
+    }
+    .dashboard-hero h1 span { color: var(--color-accent); }
+    .dashboard-hero p {
+      font-size: var(--text-lg); color: var(--color-text-secondary); max-width: 540px; margin: 0 auto 40px; line-height: 1.6;
+    }
+    .dashboard-hero-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+    
+    /* Stats strip */
+    .dashboard-stats { border-top: var(--border-width) solid var(--color-border); border-bottom: var(--border-width) solid var(--color-border); background-color: var(--color-bg-surface); }
+    .dashboard-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; padding: 32px; max-width: 1280px; margin: 0 auto; }
+    .dashboard-stat { text-align: center; }
+    .dashboard-stat-value { font-family: var(--font-serif); font-size: 36px; font-weight: var(--weight-bold); color: var(--color-accent); line-height: 1; margin-bottom: 4px; }
+    .dashboard-stat-label { font-size: var(--text-sm); font-weight: var(--weight-semibold); color: var(--color-text-primary); margin-bottom: 2px; }
+    .dashboard-stat-sub { font-size: var(--text-xs); color: var(--color-text-muted); }
+    
+    @media (max-width: 768px) {
+      .dashboard-stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .dashboard-hero h1 { font-size: 36px; }
+    }
+    
+    /* Live feed */
+    .dashboard-feed { max-width: 1280px; margin: 0 auto; padding: 56px 32px; }
+    .dashboard-feed-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+    .dashboard-feed-title-overline { display: block; font-size: var(--text-xs); font-weight: var(--weight-medium); letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 4px; }
+    .dashboard-feed-title { font-family: var(--font-serif); font-size: 28px; font-weight: var(--weight-bold); color: var(--color-text-primary); line-height: 1.2; letter-spacing: -0.02em; }
+    .dashboard-feed-filters { display: flex; gap: 8px; }
+    .dashboard-feed-filter { padding: 6px 12px; border-radius: 9999px; border: var(--border-width) solid var(--color-border); background: var(--color-bg-surface); font-size: var(--text-xs); font-weight: var(--weight-medium); color: var(--color-text-secondary); cursor: pointer; transition: all 0.15s ease; }
+    .dashboard-feed-filter:hover { border-color: var(--color-border-strong); }
+    .dashboard-feed-filter.active { background-color: var(--color-bg-inverse); color: var(--color-text-inverse); border-color: var(--color-bg-inverse); }
+    
+    /* Job cards */
+    .job-list { display: flex; flex-direction: column; gap: 12px; }
+    .job-card { 
+      display: flex; align-items: flex-start; gap: 20px; 
+      background: var(--color-bg-surface); border: var(--border-width) solid var(--color-border);
+      border-radius: var(--radius-lg); padding: 20px 24px; 
+      cursor: pointer; transition: border-color 0.15s ease;
+    }
+    .job-card:hover { border-color: var(--color-border-strong); }
+    .job-card-mono { 
+      width: 40px; height: 40px; border-radius: var(--radius-md); 
+      background: var(--color-bg-subtle); display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 2px;
+    }
+    .job-card-mono span { font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--color-text-secondary); }
+    .job-card-main { flex: 1; min-width: 0; }
+    .job-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 6px; flex-wrap: wrap; }
+    .job-card-role { font-size: 15px; font-weight: var(--weight-semibold); color: var(--color-text-primary); }
+    .job-card-role:hover { color: var(--color-accent); }
+    .job-card-company { font-size: var(--text-sm); color: var(--color-text-muted); margin-left: 8px; }
+    .job-card-match { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .job-card-match-bar { width: 64px; height: 6px; background: var(--color-bg-subtle); border-radius: 9999px; overflow: hidden; }
+    .job-card-match-fill { height: 100%; background: var(--color-success); border-radius: 9999px; }
+    .job-card-match-value { font-size: var(--text-xs); font-weight: var(--weight-semibold); color: var(--color-success); }
+    .job-card-meta { display: flex; align-items: center; gap: 12px; font-size: var(--text-xs); color: var(--color-text-muted); margin-bottom: 12px; }
+    .job-card-tags { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .job-card-tag { font-size: var(--text-xs); color: var(--color-text-secondary); background: var(--color-bg-base); border: var(--border-width) solid var(--color-border); padding: 4px 8px; border-radius: var(--radius-sm); }
+    .job-card-arrow { width: 16px; height: 16px; color: var(--color-border-strong); flex-shrink: 0; margin-top: 4px; transition: color 0.15s ease; }
+    .job-card:hover .job-card-arrow { color: var(--color-accent); }
+    
+    /* Badge colors */
+    .badge-new { background: var(--color-accent-subtle); color: var(--color-accent); border-color: var(--color-accent-border); }
+    .badge-applied { background: var(--color-success-subtle); color: var(--color-success); border-color: var(--color-success-border); }
+    .badge-screening { background: var(--color-warning-subtle); color: var(--color-warning); border-color: var(--color-warning-border); }
+    
+    /* Features section */
+    .dashboard-features { border-top: var(--border-width) solid var(--color-border); background: var(--color-bg-surface); }
+    .dashboard-features-inner { max-width: 1280px; margin: 0 auto; padding: 64px 32px; }
+    .dashboard-features-header { text-align: center; margin-bottom: 40px; }
+    .dashboard-features-overline { display: block; font-size: var(--text-xs); font-weight: var(--weight-medium); letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 8px; }
+    .dashboard-features-title { font-family: var(--font-serif); font-size: 36px; font-weight: var(--weight-bold); color: var(--color-text-primary); line-height: 1.2; letter-spacing: -0.02em; }
+    .dashboard-features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .dashboard-feature { border: var(--border-width) solid var(--color-border); border-radius: var(--radius-lg); padding: 24px; transition: border-color 0.15s ease; }
+    .dashboard-feature:hover { border-color: var(--color-border-strong); }
+    .dashboard-feature-icon { width: 40px; height: 40px; border-radius: var(--radius-md); background: var(--color-accent-subtle); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; color: var(--color-accent); }
+    .dashboard-feature-icon svg { width: 20px; height: 20px; }
+    .dashboard-feature-title { font-size: var(--text-sm); font-weight: var(--weight-semibold); color: var(--color-text-primary); margin-bottom: 8px; }
+    .dashboard-feature-desc { font-size: var(--text-sm); color: var(--color-text-secondary); line-height: 1.6; }
+    
+    @media (max-width: 768px) {
+      .dashboard-features-grid { grid-template-columns: 1fr; }
+    }
+    
+    /* Bottom CTA */
+    .dashboard-cta { background: var(--color-bg-inverse); }
+    .dashboard-cta-inner { max-width: 1280px; margin: 0 auto; padding: 64px 32px; text-align: center; }
+    .dashboard-cta h2 { font-family: var(--font-serif); font-size: 36px; font-weight: var(--weight-bold); color: var(--color-text-inverse); line-height: 1.2; letter-spacing: -0.02em; margin-bottom: 16px; }
+    .dashboard-cta h2 span { color: #C8A0A0; }
+    .dashboard-cta p { font-size: var(--text-sm); color: var(--color-text-muted); max-width: 360px; margin: 0 auto 32px; line-height: 1.6; }
   </style>
 </head>
 <body>
 
 <!-- ═══════════════════════════════════════
-     TOP BAR
+     HERO
 ═══════════════════════════════════════ -->
-<header class="top-bar">
-  <div class="top-bar-inner">
-    <div class="top-bar-left">
-      <span class="top-bar-project-name">KodNest</span>
-      <span class="top-bar-project-tag">Premium Build System</span>
+<section class="dashboard-hero">
+  <div class="page-inner">
+    <div class="dashboard-hero-eyebrow">
+      <span class="dashboard-hero-eyebrow-dot"></span>
+      Job Notification Tracker · KodNest Premium Build
     </div>
-    <div class="top-bar-center">
-      <span class="top-bar-step-label">Step <span>3</span> / 7</span>
-      <div class="top-bar-progress">
-        <div class="top-bar-progress-fill" id="topbar-fill" style="width:43%;"></div>
-      </div>
-    </div>
-    <div class="top-bar-right">
-      <span class="badge badge-in-progress" id="status-badge">In Progress</span>
-    </div>
-  </div>
-</header>
-
-<!-- ═══════════════════════════════════════
-     CONTEXT HEADER
-═══════════════════════════════════════ -->
-<section class="context-header">
-  <div class="context-header-inner">
-    <span class="context-header-overline">Step 3 — UI Foundation</span>
-    <h1 class="context-header-headline">Build the job notification feed</h1>
-    <p class="context-header-subtext">
-      Define the primary data table, filter controls, and status indicators for the job listing
-      interface. Work through each component below, then mark your proof items at the bottom.
+    <h1>
+      Stop Missing<br />
+      <span>The Right Jobs.</span>
+    </h1>
+    <p>
+      Real-time alerts. ATS match scores. Full application pipeline.
+      Every role you should apply to — delivered before the crowd gets there.
     </p>
+    <div class="dashboard-hero-actions">
+      <a href="#" class="btn btn-primary btn-lg">
+        Set Up My Tracker
+        <svg style="width:16px;height:16px;margin-left:4px;" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+      </a>
+      <a href="design-system.html" class="btn btn-secondary btn-lg">
+        See a Sample Dashboard
+      </a>
+    </div>
   </div>
 </section>
 
 <!-- ═══════════════════════════════════════
-     WORKSPACE + PANEL
+     STATS STRIP
 ═══════════════════════════════════════ -->
-<main>
-  <div class="workspace-layout">
-
-    <!-- ── PRIMARY WORKSPACE (70%) ─────── -->
-    <div class="workspace-main">
-
-      <div class="workspace-main-section">
-        <span class="overline">Design System Showcase</span>
-        <h2 class="workspace-section-title">Every Component, Documented</h2>
-        <p class="workspace-section-description">
-          The living reference for the KodNest Premium Build System. Every pattern shown here is
-          production-ready and governed by the token system. One mind designed it all.
-        </p>
-      </div>
-
-      <!-- COLOR SYSTEM -->
-      <div class="ds-section">
-        <div class="ds-section-title">Color System</div>
-        <div class="ds-section-desc">Max 4 semantic colors. No gradients. No neon. Muted and intentional.</div>
-        <div class="ds-swatch-grid">
-          <div class="ds-swatch"><div class="ds-swatch-color" style="background:#F7F6F3;"></div><div class="ds-swatch-name">--color-bg-base</div><div class="ds-swatch-val">#F7F6F3</div></div>
-          <div class="ds-swatch"><div class="ds-swatch-color" style="background:#FFFFFF;"></div><div class="ds-swatch-name">--color-bg-surface</div><div class="ds-swatch-val">#FFFFFF</div></div>
-          <div class="ds-swatch"><div class="ds-swatch-color" style="background:#EFEDE8;"></div><div class="ds-swatch-name">--color-bg-subtle</div><div class="ds-swatch-val">#EFEDE8</div></div>
-          <div class="ds-swatch"><div class="ds-swatch-color" style="background:#111111;"></div><div class="ds-swatch-name">--color-bg-inverse</div><div class="ds-swatch-val">#111111</div></div>
-          <div class="ds-swatch"><div class="ds-swatch-color" style="background:#8B0000;"></div><div class="ds-swatch-name">--color-accent</div><div class="ds-swatch-val">#8B0000 Deep Red</div></div>
-          <div class="ds-swatch"><div class="ds-swatch-color" style="background:#F5EDED;"></div><div class="ds-swatch-name">--color-accent-subtle</div><div class="ds-swatch-val">#F5EDED</div></div>
-          <div class="ds-swatch"><div class="ds-swatch-color" style="background:#3A6B4A;"></div><div class="ds-swatch-name">--color-success</div><div class="ds-swatch-val">#3A6B4A Muted Green</div></div>
-          <div class="ds-swatch"><div class="ds-swatch-color" style="background:#EDF3EF;"></div><div class="ds-swatch-name">--color-success-subtle</div><div class="ds-swatch-val">#EDF3EF</div></div>
-          <div class="ds-swatch"><div class="ds-swatch-color" style="background:#8A6200;"></div><div class="ds-swatch-name">--color-warning</div><div class="ds-swatch-val">#8A6200 Muted Amber</div></div>
-          <div class="ds-swatch"><div class="ds-swatch-color" style="background:#F5F0E0;"></div><div class="ds-swatch-name">--color-warning-subtle</div><div class="ds-swatch-val">#F5F0E0</div></div>
-          <div class="ds-swatch"><div class="ds-swatch-color" style="background:#E2E0DA;"></div><div class="ds-swatch-name">--color-border</div><div class="ds-swatch-val">#E2E0DA</div></div>
-          <div class="ds-swatch"><div class="ds-swatch-color" style="background:#C8C5BC;"></div><div class="ds-swatch-name">--color-border-strong</div><div class="ds-swatch-val">#C8C5BC</div></div>
-        </div>
-      </div>
-
-      <!-- TYPOGRAPHY -->
-      <div class="ds-section">
-        <div class="ds-section-title">Typography</div>
-        <div class="ds-section-desc">Serif for headings. Sans for body. Mono for code and prompts. No decorative fonts.</div>
-        <div class="ds-specimen"><div class="ds-specimen-meta">Playfair Display · Bold · 64px · tracking -0.02em</div><h1 style="font-size:var(--text-4xl);">Build with intention.</h1></div>
-        <div class="ds-specimen"><div class="ds-specimen-meta">Playfair Display · Bold · 48px</div><h2 style="font-size:var(--text-3xl);">Your career, systematically built.</h2></div>
-        <div class="ds-specimen"><div class="ds-specimen-meta">Playfair Display · Bold · 36px</div><h3 style="font-size:var(--text-2xl);">Step 3: Build the notification feed</h3></div>
-        <div class="ds-specimen"><div class="ds-specimen-meta">Playfair Display · Semibold · 28px</div><h4 style="font-size:var(--text-xl);">Component: Job Status Card</h4></div>
-        <div class="ds-specimen"><div class="ds-specimen-meta">Inter · Regular · 18px · line-height 1.8</div><p>Each job application you track becomes a data point. The system surfaces what matters — status, deadline, next action — without noise. Clear signals, calm interface, professional outcome.</p></div>
-        <div class="ds-specimen"><div class="ds-specimen-meta">Inter · Regular · 16px · line-height 1.6</div><p style="font-size:var(--text-base);">Supporting body text for secondary descriptions, field hints, and inline explanations. Readable at all sizes without strain.</p></div>
-        <div class="ds-specimen"><div class="ds-specimen-meta">Inter · Medium · 12px · tracking 0.1em · UPPERCASE</div><span class="overline">Section label / Overline</span></div>
-        <div class="ds-specimen"><div class="ds-specimen-meta">JetBrains Mono · Regular · 14px</div><code>const tracker = new JobTracker({ notify: true });</code></div>
-      </div>
-
-      <!-- SPACING -->
-      <div class="ds-section">
-        <div class="ds-section-title">Spacing System</div>
-        <div class="ds-section-desc">Strict 8px base scale. Never use values outside this set. Whitespace is part of the design.</div>
-        <div class="d-flex flex-col gap-xs">
-          <div class="d-flex items-center gap-md"><div style="width:8px;height:24px;background:var(--color-accent);border-radius:2px;flex-shrink:0;"></div><span class="font-mono text-sm text-primary" style="width:40px;">8px</span><span class="text-sm text-muted">--space-xs · micro spacing, icon gaps</span></div>
-          <div class="d-flex items-center gap-md"><div style="width:16px;height:24px;background:var(--color-accent);border-radius:2px;flex-shrink:0;"></div><span class="font-mono text-sm text-primary" style="width:40px;">16px</span><span class="text-sm text-muted">--space-sm · inline gaps, small padding</span></div>
-          <div class="d-flex items-center gap-md"><div style="width:24px;height:24px;background:var(--color-accent);border-radius:2px;flex-shrink:0;"></div><span class="font-mono text-sm text-primary" style="width:40px;">24px</span><span class="text-sm text-muted">--space-md · card padding, form fields</span></div>
-          <div class="d-flex items-center gap-md"><div style="width:40px;height:24px;background:var(--color-accent);border-radius:2px;flex-shrink:0;"></div><span class="font-mono text-sm text-primary" style="width:40px;">40px</span><span class="text-sm text-muted">--space-lg · section margins, layout gutter</span></div>
-          <div class="d-flex items-center gap-md"><div style="width:64px;height:24px;background:var(--color-accent);border-radius:2px;flex-shrink:0;"></div><span class="font-mono text-sm text-primary" style="width:40px;">64px</span><span class="text-sm text-muted">--space-xl · page sections, header padding</span></div>
-          <div class="d-flex items-center gap-md"><div style="width:96px;height:24px;background:var(--color-accent);border-radius:2px;flex-shrink:0;"></div><span class="font-mono text-sm text-primary" style="width:40px;">96px</span><span class="text-sm text-muted">--space-2xl · major page zones</span></div>
-        </div>
-      </div>
-
-      <!-- BUTTONS -->
-      <div class="ds-section">
-        <div class="ds-section-title">Buttons</div>
-        <div class="ds-section-desc">Primary = solid deep red. Secondary = outlined. Same radius and hover everywhere.</div>
-        <div class="ds-col">
-          <span class="overline">Primary</span>
-          <div class="ds-row">
-            <button class="btn btn-primary btn-lg">Build in Lovable</button>
-            <button class="btn btn-primary">Save Progress</button>
-            <button class="btn btn-primary btn-sm">Copy</button>
-            <button class="btn btn-primary" disabled>Disabled</button>
-          </div>
-          <span class="overline mt-sm">Secondary</span>
-          <div class="ds-row">
-            <button class="btn btn-secondary btn-lg">View Details</button>
-            <button class="btn btn-secondary">Add Screenshot</button>
-            <button class="btn btn-secondary btn-sm">Cancel</button>
-          </div>
-          <span class="overline mt-sm">Contextual</span>
-          <div class="ds-row">
-            <button class="btn btn-success">It Worked</button>
-            <button class="btn btn-danger">Report Error</button>
-            <button class="btn btn-ghost">Skip Step</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- BADGES -->
-      <div class="ds-section">
-        <div class="ds-section-title">Badges &amp; Status Pills</div>
-        <div class="ds-section-desc">Status-driven. Always readable. Never decorative.</div>
-        <div class="ds-row">
-          <span class="badge badge-not-started">Not Started</span>
-          <span class="badge badge-in-progress">In Progress</span>
-          <span class="badge badge-shipped">Shipped</span>
-          <span class="badge badge-error">Error</span>
-          <span class="badge badge-neutral">Paused</span>
-        </div>
-      </div>
-
-      <!-- CARDS -->
-      <div class="ds-section">
-        <div class="ds-section-title">Cards</div>
-        <div class="ds-section-desc">Subtle border, no drop shadows, balanced padding. Cards carry content — never decoration.</div>
-        <div class="ds-col">
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">Job Application — Senior Frontend Engineer</div>
-              <div class="card-subtitle">Applied via LinkedIn · 14 Feb 2026</div>
-            </div>
-            <div class="card-body">Submitted application for a Series B product company. Technical screen is scheduled for next week.</div>
-            <div class="card-footer">
-              <span class="badge badge-in-progress">In Progress</span>
-              <button class="btn btn-secondary btn-sm" style="margin-left:auto;">View</button>
-            </div>
-          </div>
-          <div class="card card-accent">
-            <div class="card-title">Priority: Respond to recruiter by Friday</div>
-            <div class="card-body mt-xs">The recruiter from KodNest requested a response before 21 Feb. Mark as actioned once replied.</div>
-          </div>
-          <div class="card card-success">
-            <div class="card-title">Offer Received — Product Design Lead</div>
-            <div class="card-body mt-xs">Formal offer letter received. Review compensation and respond within 5 business days.</div>
-          </div>
-          <div class="card card-interactive">
-            <div class="card-title">Hover this card — Data Engineer, Remote</div>
-            <div class="card-body mt-xs">Border sharpens, background shifts on hover. Subtle, not flashy. 150ms ease-in-out.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- FORM INPUTS -->
-      <div class="ds-section">
-        <div class="ds-section-title">Form Inputs</div>
-        <div class="ds-section-desc">Clean borders, no heavy shadows, clear focus states. Labels always above the field.</div>
-        <div class="ds-col" style="max-width:560px;">
-          <div class="field">
-            <label class="label" for="company">Company Name</label>
-            <input class="input" type="text" id="company" placeholder="e.g. Razorpay, Zepto, Freshworks" />
-          </div>
-          <div class="field">
-            <label class="label" for="role">Role Title <span class="label-hint">required</span></label>
-            <input class="input input-error" type="text" id="role" value="frntend enginer" />
-            <span class="field-message field-message-error">Check the role title — it looks like a typo. Update it to match the exact job posting.</span>
-          </div>
-          <div class="field">
-            <label class="label" for="email">Contact Email</label>
-            <input class="input input-success" type="email" id="email" value="recruiter@company.com" />
-            <span class="field-message field-message-success">Email address looks correct.</span>
-          </div>
-          <div class="field">
-            <label class="label" for="notes">Application Notes</label>
-            <textarea class="textarea" id="notes" rows="4" placeholder="Record key points, referral details, or follow-up tasks..."></textarea>
-            <span class="field-message field-message-hint">This is private. Only you can see these notes.</span>
-          </div>
-          <div class="field">
-            <label class="label" for="status-select">Application Status</label>
-            <div class="select-wrapper">
-              <select class="select" id="status-select">
-                <option value="">Select a status</option>
-                <option>Applied</option>
-                <option>Screening</option>
-                <option>Interview</option>
-                <option>Offer Received</option>
-                <option>Rejected</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ALERTS -->
-      <div class="ds-section">
-        <div class="ds-section-title">Alerts &amp; Feedback</div>
-        <div class="ds-section-desc">Errors explain what went wrong and how to fix it. Never blame the user. Empty states always offer a next action.</div>
-        <div class="ds-col">
-          <div class="alert alert-error">
-            <svg class="alert-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            <div class="alert-body">
-              <div class="alert-title">The build did not complete</div>
-              <div class="alert-message">Lovable returned a timeout error. This is usually caused by a prompt that is too long. Try splitting it into two smaller parts.</div>
-              <div class="alert-action"><a href="#">How to split prompts →</a></div>
-            </div>
-          </div>
-          <div class="alert alert-warning">
-            <svg class="alert-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            <div class="alert-body">
-              <div class="alert-title">This step has unsaved proof</div>
-              <div class="alert-message">You marked this step complete but have not attached a screenshot. Add one before moving forward.</div>
-            </div>
-          </div>
-          <div class="alert alert-success">
-            <svg class="alert-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            <div class="alert-body">
-              <div class="alert-title">Step 3 completed</div>
-              <div class="alert-message">UI Built, Logic Working, and Tests Passed. You are ready to move to Deployment.</div>
-            </div>
-          </div>
-          <div class="alert alert-info">
-            <svg class="alert-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            <div class="alert-body">
-              <div class="alert-title">Using Lovable for the first time?</div>
-              <div class="alert-message">Paste the prompt exactly as shown. Do not paraphrase — it is engineered for precise output.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- EMPTY STATE -->
-      <div class="ds-section">
-        <div class="ds-section-title">Empty States</div>
-        <div class="ds-section-desc">Empty states provide the next action. They never feel dead.</div>
-        <div class="card">
-          <div class="empty-state">
-            <svg class="empty-state-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
-            <div class="empty-state-title">No applications tracked yet</div>
-            <div class="empty-state-description">Start by adding your first job application. Track every role you apply to — status, company, and next steps — in one place.</div>
-            <div class="empty-state-action"><button class="btn btn-primary">Add Your First Application</button></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- PROMPT BOX -->
-      <div class="ds-section">
-        <div class="ds-section-title">Prompt Box</div>
-        <div class="ds-section-desc">Monospaced. Clearly labelled. One-click copy. Lives in the secondary panel.</div>
-        <div class="prompt-box">
-          <div class="prompt-box-label">Lovable Prompt — Step 3</div>
-          <pre class="prompt-box-content">Build a job application tracker table with the following columns:
-- Company Name (text)
-- Role Title (text)
-- Date Applied (date)
-- Status (dropdown: Applied / Screening / Interview / Offer / Rejected)
-- Notes (text, optional)
-
-Requirements:
-- Clean table with sticky header
-- Each row has a status badge (colour-coded)
-- Clicking a row opens a detail panel on the right
-- Empty state shows when no applications exist
-- Mobile: collapse to card list view</pre>
-          <div class="prompt-box-actions">
-            <button class="btn btn-primary btn-sm">Copy Prompt</button>
-            <button class="btn btn-secondary btn-sm">Build in Lovable</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- UPLOAD ZONE -->
-      <div class="ds-section">
-        <div class="ds-section-title">Screenshot Upload Zone</div>
-        <div class="ds-section-desc">Attach build evidence in the Proof Footer before marking a step complete.</div>
-        <div class="upload-zone" style="max-width:480px;">
-          <svg class="upload-zone-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          <div class="upload-zone-label">Drop screenshot here or click to browse</div>
-          <div class="upload-zone-hint">PNG, JPG or WEBP · Max 4MB</div>
-        </div>
-      </div>
-
-      <!-- DIVIDERS -->
-      <div class="ds-section">
-        <div class="ds-section-title">Dividers</div>
-        <div class="ds-col" style="gap:var(--space-md);">
-          <div><p class="text-sm text-muted mb-xs">Plain</p><div class="divider"></div></div>
-          <div><p class="text-sm text-muted mb-xs">Labelled</p><div class="divider-label"><span>or continue with</span></div></div>
-        </div>
-      </div>
-
-    </div><!-- /workspace-main -->
-
-    <!-- ── SECONDARY PANEL (30%) ─────── -->
-    <aside class="workspace-panel">
-
-      <div class="workspace-panel-section">
-        <span class="workspace-panel-label">This Step</span>
-        <div class="step-explanation">
-          <div class="step-explanation-title">What you're building</div>
-          <div class="step-explanation-body">Scaffold the primary job feed table. The prompt below is pre-engineered. Paste it into Lovable exactly as shown, then verify the output against the proof checklist at the bottom.</div>
-        </div>
-      </div>
-
-      <div class="workspace-panel-section">
-        <span class="workspace-panel-label">Prompt</span>
-        <div class="prompt-box">
-          <div class="prompt-box-label">Lovable Prompt</div>
-          <pre class="prompt-box-content">Build a job tracker feed. Each entry shows: company name, role, date applied, and status badge. Include filter by status. Empty state with CTA.</pre>
-        </div>
-      </div>
-
-      <div class="workspace-panel-section">
-        <span class="workspace-panel-label">Actions</span>
-        <div class="panel-actions">
-          <button class="btn btn-primary">Build in Lovable</button>
-          <button class="btn btn-secondary">Copy Prompt</button>
-          <button class="btn btn-success">It Worked</button>
-          <button class="btn btn-danger">Report Error</button>
-          <button class="btn btn-secondary">Add Screenshot</button>
-        </div>
-      </div>
-
-      <div class="workspace-panel-section">
-        <span class="workspace-panel-label">Navigation</span>
-        <div class="d-flex justify-between gap-xs">
-          <button class="btn btn-ghost btn-sm flex-1">← Previous</button>
-          <button class="btn btn-secondary btn-sm flex-1">Next →</button>
-        </div>
-      </div>
-
-    </aside>
-
+<section class="dashboard-stats">
+  <div class="dashboard-stats-grid">
+    <div class="dashboard-stat">
+      <div class="dashboard-stat-value">347</div>
+      <div class="dashboard-stat-label">Jobs tracked today</div>
+      <div class="dashboard-stat-sub">across 42 companies</div>
+    </div>
+    <div class="dashboard-stat">
+      <div class="dashboard-stat-value">94%</div>
+      <div class="dashboard-stat-label">ATS match accuracy</div>
+      <div class="dashboard-stat-sub">on tailored resumes</div>
+    </div>
+    <div class="dashboard-stat">
+      <div class="dashboard-stat-value">< 2m</div>
+      <div class="dashboard-stat-label">Alert delivery time</div>
+      <div class="dashboard-stat-sub">from posting to ping</div>
+    </div>
+    <div class="dashboard-stat">
+      <div class="dashboard-stat-value">3.1×</div>
+      <div class="dashboard-stat-label">More interviews</div>
+      <div class="dashboard-stat-sub">vs. manual search</div>
+    </div>
   </div>
-</main>
+</section>
 
 <!-- ═══════════════════════════════════════
-     PROOF FOOTER
+     LIVE FEED
 ═══════════════════════════════════════ -->
-<footer class="proof-footer">
-  <div class="proof-footer-inner">
-    <div class="proof-footer-header">
-      <span class="proof-footer-overline">Proof of Work</span>
-      <div class="proof-footer-title">Confirm this step is complete</div>
-      <div class="proof-footer-description">Each checkpoint requires evidence before you move forward. This keeps your build traceable and ensures nothing is skipped.</div>
+<section class="dashboard-feed">
+  <div class="dashboard-feed-header">
+    <div>
+      <span class="dashboard-feed-title-overline">Live Feed</span>
+      <h2 class="dashboard-feed-title">Today's Matched Roles</h2>
     </div>
-    <div class="proof-footer-checklist">
-
-      <div class="proof-item">
-        <div class="proof-item-check"><label class="checkbox-wrapper"><input type="checkbox" class="checkbox-input proof-cb" /><span class="sr-only">UI Built</span></label></div>
-        <div class="proof-item-body">
-          <div class="proof-item-label">□ UI Built</div>
-          <input type="text" class="input proof-item-input" placeholder="Paste the Lovable preview URL or describe what was built…" />
-          <div class="proof-item-hint">The interface renders correctly in the browser. No layout breaks.</div>
-        </div>
-      </div>
-
-      <div class="proof-item">
-        <div class="proof-item-check"><label class="checkbox-wrapper"><input type="checkbox" class="checkbox-input proof-cb" /><span class="sr-only">Logic Working</span></label></div>
-        <div class="proof-item-body">
-          <div class="proof-item-label">□ Logic Working</div>
-          <input type="text" class="input proof-item-input" placeholder="Describe the feature behaviour you verified…" />
-          <div class="proof-item-hint">Status updates, filtering, and data flow behave as expected.</div>
-        </div>
-      </div>
-
-      <div class="proof-item">
-        <div class="proof-item-check"><label class="checkbox-wrapper"><input type="checkbox" class="checkbox-input proof-cb" /><span class="sr-only">Test Passed</span></label></div>
-        <div class="proof-item-body">
-          <div class="proof-item-label">□ Test Passed</div>
-          <input type="text" class="input proof-item-input" placeholder="Describe the manual test scenario you ran…" />
-          <div class="proof-item-hint">Added at least one job and confirmed it appears with the correct status.</div>
-        </div>
-      </div>
-
-      <div class="proof-item">
-        <div class="proof-item-check"><label class="checkbox-wrapper"><input type="checkbox" class="checkbox-input proof-cb" /><span class="sr-only">Deployed</span></label></div>
-        <div class="proof-item-body">
-          <div class="proof-item-label">□ Deployed</div>
-          <input type="text" class="input proof-item-input" placeholder="Paste the live deployment URL…" />
-          <div class="proof-item-hint">The build is published and accessible via a shareable link.</div>
-        </div>
-      </div>
-
-    </div>
-    <div class="proof-footer-summary">
-      <div class="proof-footer-summary-text" id="proof-summary"><strong>0 of 4</strong> checkpoints complete</div>
-      <button class="btn btn-primary" id="complete-btn" disabled>Mark Step Complete</button>
+    <div class="dashboard-feed-filters">
+      <button class="dashboard-feed-filter active">All</button>
+      <button class="dashboard-feed-filter">New</button>
+      <button class="dashboard-feed-filter">Applied</button>
+      <button class="dashboard-feed-filter">Screening</button>
     </div>
   </div>
-</footer>
+  
+  <div class="job-list">
+    <!-- Job 1 -->
+    <div class="job-card">
+      <div class="job-card-mono"><span>RA</span></div>
+      <div class="job-card-main">
+        <div class="job-card-header">
+          <div>
+            <span class="job-card-role">Senior Frontend Engineer</span>
+            <span class="job-card-company">Razorpay</span>
+          </div>
+          <div class="job-card-match">
+            <div class="job-card-match-bar"><div class="job-card-match-fill" style="width:94%"></div></div>
+            <span class="job-card-match-value">94%</span>
+          </div>
+        </div>
+        <div class="job-card-meta">
+          <span>Bangalore · Remote</span>
+          <span>·</span>
+          <span>2h ago</span>
+        </div>
+        <div class="job-card-tags">
+          <span class="badge badge-new">New</span>
+          <span class="job-card-tag">React</span>
+          <span class="job-card-tag">TypeScript</span>
+          <span class="job-card-tag">System Design</span>
+        </div>
+      </div>
+      <svg class="job-card-arrow" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+    </div>
+    
+    <!-- Job 2 -->
+    <div class="job-card">
+      <div class="job-card-mono"><span>ZE</span></div>
+      <div class="job-card-main">
+        <div class="job-card-header">
+          <div>
+            <span class="job-card-role">Product Engineer — Growth</span>
+            <span class="job-card-company">Zepto</span>
+          </div>
+          <div class="job-card-match">
+            <div class="job-card-match-bar"><div class="job-card-match-fill" style="width:88%"></div></div>
+            <span class="job-card-match-value">88%</span>
+          </div>
+        </div>
+        <div class="job-card-meta">
+          <span>Mumbai · Hybrid</span>
+          <span>·</span>
+          <span>5h ago</span>
+        </div>
+        <div class="job-card-tags">
+          <span class="badge badge-new">New</span>
+          <span class="job-card-tag">Next.js</span>
+          <span class="job-card-tag">Node.js</span>
+          <span class="job-card-tag">Analytics</span>
+        </div>
+      </div>
+      <svg class="job-card-arrow" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+    </div>
+    
+    <!-- Job 3 -->
+    <div class="job-card">
+      <div class="job-card-mono"><span>FR</span></div>
+      <div class="job-card-main">
+        <div class="job-card-header">
+          <div>
+            <span class="job-card-role">Staff Software Engineer</span>
+            <span class="job-card-company">Freshworks</span>
+          </div>
+          <div class="job-card-match">
+            <div class="job-card-match-bar"><div class="job-card-match-fill" style="width:81%"></div></div>
+            <span class="job-card-match-value">81%</span>
+          </div>
+        </div>
+        <div class="job-card-meta">
+          <span>Chennai · On-site</span>
+          <span>·</span>
+          <span>1d ago</span>
+        </div>
+        <div class="job-card-tags">
+          <span class="badge badge-applied">Applied</span>
+          <span class="job-card-tag">Java</span>
+          <span class="job-card-tag">Microservices</span>
+          <span class="job-card-tag">AWS</span>
+        </div>
+      </div>
+      <svg class="job-card-arrow" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+    </div>
+    
+    <!-- Job 4 -->
+    <div class="job-card">
+      <div class="job-card-mono"><span>CR</span></div>
+      <div class="job-card-main">
+        <div class="job-card-header">
+          <div>
+            <span class="job-card-role">Frontend Architect</span>
+            <span class="job-card-company">CRED</span>
+          </div>
+          <div class="job-card-match">
+            <div class="job-card-match-bar"><div class="job-card-match-fill" style="width:76%"></div></div>
+            <span class="job-card-match-value">76%</span>
+          </div>
+        </div>
+        <div class="job-card-meta">
+          <span>Bangalore · Remote</span>
+          <span>·</span>
+          <span>2d ago</span>
+        </div>
+        <div class="job-card-tags">
+          <span class="badge badge-screening">Screening</span>
+          <span class="job-card-tag">React Native</span>
+          <span class="job-card-tag">Design Systems</span>
+          <span class="job-card-tag">Performance</span>
+        </div>
+      </div>
+      <svg class="job-card-arrow" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+    </div>
+    
+    <!-- Job 5 -->
+    <div class="job-card">
+      <div class="job-card-mono"><span>PH</span></div>
+      <div class="job-card-main">
+        <div class="job-card-header">
+          <div>
+            <span class="job-card-role">Software Engineer II</span>
+            <span class="job-card-company">PhonePe</span>
+          </div>
+          <div class="job-card-match">
+            <div class="job-card-match-bar"><div class="job-card-match-fill" style="width:71%"></div></div>
+            <span class="job-card-match-value">71%</span>
+          </div>
+        </div>
+        <div class="job-card-meta">
+          <span>Bangalore · Hybrid</span>
+          <span>·</span>
+          <span>3d ago</span>
+        </div>
+        <div class="job-card-tags">
+          <span class="badge badge-applied">Applied</span>
+          <span class="job-card-tag">Go</span>
+          <span class="job-card-tag">Distributed Systems</span>
+          <span class="job-card-tag">Kafka</span>
+        </div>
+      </div>
+      <svg class="job-card-arrow" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+    </div>
+  </div>
+</section>
 
-<!-- TOAST DEMO -->
-<div class="toast-container" style="pointer-events:none;">
-  <div class="toast toast-success"><span>Step 2 marked complete. Moving to Step 3.</span></div>
-</div>
+<!-- ═══════════════════════════════════════
+     FEATURES
+═══════════════════════════════════════ -->
+<section class="dashboard-features">
+  <div class="dashboard-features-inner">
+    <div class="dashboard-features-header">
+      <span class="dashboard-features-overline">Why It Works</span>
+      <h2 class="dashboard-features-title">Built for the modern job search.</h2>
+    </div>
+    <div class="dashboard-features-grid">
+      <div class="dashboard-feature">
+        <div class="dashboard-feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+        </div>
+        <h3 class="dashboard-feature-title">Real-time Job Alerts</h3>
+        <p class="dashboard-feature-desc">Get notified the moment a matching role goes live — before the first wave of applicants arrives.</p>
+      </div>
+      <div class="dashboard-feature">
+        <div class="dashboard-feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        </div>
+        <h3 class="dashboard-feature-title">Application Pipeline</h3>
+        <p class="dashboard-feature-desc">Track every role from first alert to offer. Status, deadlines, and next actions — all in one view.</p>
+      </div>
+      <div class="dashboard-feature">
+        <div class="dashboard-feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+        </div>
+        <h3 class="dashboard-feature-title">ATS Match Score</h3>
+        <p class="dashboard-feature-desc">Each listing is scored against your profile. Apply only to jobs where your match is above 70%.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-<script>
-(function(){
-  var cbs = document.querySelectorAll('.proof-cb');
-  var btn = document.getElementById('complete-btn');
-  var summary = document.getElementById('proof-summary');
-  var fill = document.getElementById('topbar-fill');
-  var badge = document.getElementById('status-badge');
+<!-- ═══════════════════════════════════════
+     BOTTOM CTA
+═══════════════════════════════════════ -->
+<section class="dashboard-cta">
+  <div class="dashboard-cta-inner">
+    <h2>
+      Your next role is already posted.<br />
+      <span>Are you tracking it?</span>
+    </h2>
+    <p>
+      Set up your profile once. The tracker does the rest — silently watching every board you care about.
+    </p>
+    <a href="#" class="btn btn-primary btn-lg">
+      Start Tracking Now
+      <svg style="width:16px;height:16px;margin-left:4px;" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+    </a>
+  </div>
+</section>
 
-  function update(){
-    var total = cbs.length;
-    var checked = Array.from(cbs).filter(function(c){ return c.checked; }).length;
-    summary.innerHTML = '<strong>' + checked + ' of ' + total + '</strong> checkpoints complete';
-    btn.disabled = checked !== total;
-    Array.from(cbs).forEach(function(cb){
-      var item = cb.closest('.proof-item');
-      if(item){ item.classList.toggle('is-complete', cb.checked); }
-    });
-    var pct = 43 + Math.round((checked / total) * 57);
-    fill.style.width = pct + '%';
-    badge.className = 'badge';
-    if(checked === total){ badge.classList.add('badge-shipped'); badge.textContent = 'Shipped'; }
-    else { badge.classList.add('badge-in-progress'); badge.textContent = 'In Progress'; }
-  }
-  Array.from(cbs).forEach(function(cb){ cb.addEventListener('change', update); });
-})();
-</script>
 </body>
 </html>
